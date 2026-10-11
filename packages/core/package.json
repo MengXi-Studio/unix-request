@@ -1,0 +1,47 @@
+{
+	"name": "@meng-xi/unix-request",
+	"type": "module",
+	"version": "0.1.0",
+	"private": false,
+	"description": "为 uni-app x 提供对标 Axios 功能体系的网络请求库",
+	"keywords": [
+		"@meng-xi/unix-request",
+		"meng-xi",
+		"unix-request",
+		"uni-app-x",
+		"request",
+		"http",
+		"axios"
+	],
+	"main": "utssdk/index.uts",
+	"module": "utssdk/index.uts",
+	"types": "utssdk/index.uts",
+	"exports": {
+		".": "./utssdk/index.uts"
+	},
+	"files": [
+		"utssdk",
+		"license.md",
+		"README.md",
+		"README-en.md"
+	],
+	"peerDependencies": {
+		"vue": ">=3.0.0"
+	},
+	"peerDependenciesMeta": {
+		"vue": {
+			"optional": true
+		}
+	},
+	"author": {
+		"name": "PedroQue99",
+		"email": "ksmengfang@163.com"
+	},
+	"license": "MIT",
+	"homepage": "https://github.com/MengXi-Studio/unix-request#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MengXi-Studio/unix-request.git"
+	},
+	"bugs": "https://github.com/MengXi-Studio/unix-request/issues"
+}

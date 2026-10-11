@@ -1,0 +1,19 @@
+{
+    "name" : "unix-request-playground",
+    "appid" : "__UNI__1927897",
+    "description" : "@meng-xi/unix-request 示例项目",
+    "versionName" : "0.1.0",
+    "versionCode" : "001",
+    "uni-app-x" : {
+        "styleIsolationVersion" : "2",
+        "vapor" : true,
+        "vapor-render-target" : "bytecode"
+    },
+    "vueVersion" : "3",
+    "uniStatistics" : {
+        "enable" : false
+    },
+    "mp-weixin" : {
+        "appid" : null
+    }
+}

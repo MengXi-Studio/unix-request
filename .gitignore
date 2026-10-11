@@ -1,0 +1,30 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+.DS_Store
+dist
+*.local
+
+# npm 凭据（含 access token，禁止入库）
+.npmrc
+
+# Editor directories and files
+.idea
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# uni-app x 编译产物
+packages/playground/unpackage
+
+# HBuilderX CLI 运行日志
+cli-*.log

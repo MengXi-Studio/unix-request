@@ -1,0 +1,518 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<text class="title">unix-request 测试矩阵（v0.5 管线）</text>
+			<button type="primary" @click="runAll">▶ 一键全跑</button>
+			<button @click="clearLog">清空日志</button>
+
+			<text class="section">URL / 配置（01-04）</text>
+			<view class="row">
+				<button size="mini" @click="t01GetUri">01 getUri 编码</button>
+				<button size="mini" @click="t02Query">02 params+GETdata</button>
+				<button size="mini" @click="t03ErrConfig">03 ERR_CONFIG</button>
+				<button size="mini" @click="t04ErrParam">04 ERR_PARAM</button>
+			</view>
+
+			<text class="section">请求发送（05-07）</text>
+			<view class="row">
+				<button size="mini" @click="t05Methods">05 七种 method</button>
+				<button size="mini" @click="t06Post">06 POST+CT补设</button>
+				<button size="mini" @click="t07Header">07 header 三级合并</button>
+			</view>
+
+			<text class="section">错误体系（08-10）</text>
+			<view class="row">
+				<button size="mini" @click="t08Status">08 4xx/5xx</button>
+				<button size="mini" @click="t09Timeout">09 超时</button>
+				<button size="mini" @click="t10Cancel">10 取消</button>
+			</view>
+
+			<text class="section">transform / 拦截器 / 实例（11-15）</text>
+			<view class="row">
+				<button size="mini" @click="t11Transform">11 transform 替换</button>
+				<button size="mini" @click="t12Interceptors">12 拦截器语义</button>
+				<button size="mini" @click="t13Instances">13 多实例隔离</button>
+				<button size="mini" @click="t14Global">14 全局配置</button>
+				<button size="mini" @click="t15ArrayBuffer">15 ArrayBuffer</button>
+			</view>
+
+			<view class="logs">
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request, get, post, getUri, createRequest, useRequestInterceptor, useResponseInterceptor, ejectInterceptor, createCancelSource, configureRequest } from '@/uni_modules/ux-request'
+	import type { RequestConfig, RequestError, ResponseAny, RequestMethod } from '@/uni_modules/ux-request'
+
+	/** 官方测试服务器（hello uni-app x 同源） */
+	const HOST = 'https://request.dcloud.net.cn'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	/** 页面初始化：配置默认实例全局默认（baseURL + 默认 header，供 02/07/14 等用例） */
+	const globalHeader: UTSJSONObject = {}
+	globalHeader['x-global'] = 'global-default'
+	configureRequest({
+		baseURL: HOST,
+		timeout: 15000,
+		header: globalHeader,
+		validateStatus: null
+	})
+
+	function describeErr(err: RequestError): string {
+		let s = 'code=' + err.code + ' errMsg=' + err.errMsg
+		if (err.nativeErrCode != null) {
+			s += ' nativeErrCode=' + err.nativeErrCode.toString()
+		}
+		if (err.statusCode != null) {
+			s += ' statusCode=' + err.statusCode.toString()
+		}
+		const r = err.response
+		if (r != null) {
+			s += ' | response.statusCode=' + r.statusCode.toString() + ' responseBody=' + JSON.stringify(r.data)
+		}
+		return s
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/** 空安全读取响应 config.header 的键值 */
+	function headerVal(cfg: RequestConfig | null, key: string): string {
+		if (cfg == null) {
+			return 'config-null'
+		}
+		const h = cfg.header
+		if (h == null) {
+			return 'header-null'
+		}
+		const v = h[key]
+		if (v == null) {
+			return 'null'
+		}
+		return v as string
+	}
+
+	/* ===== 01 getUri：params 确定性编码 + baseURL 斜杠容错 + 绝对地址不拼接 ===== */
+	function t01GetUri(): void {
+		log('01', getUri({
+			url: '/x',
+			baseURL: 'https://api.test/v1/',
+			params: {
+				a: 'a b',
+				n: 1,
+				ok: true
+			} as UTSJSONObject
+		}))
+		log('01', getUri({ url: 'y', baseURL: 'https://api.test/v1' }))
+		log('01', getUri({
+			url: 'https://abs.test/z?a=1',
+			baseURL: 'https://should-ignore.test',
+			params: { b: 'b/c' } as UTSJSONObject
+		}))
+	}
+
+	/* ===== 02 params + GET data 并入 query（网络实测：response.config.url 与回显） ===== */
+	function t02Query(): void {
+		const p: UTSJSONObject = {}
+		p['a'] = 'a b'
+		p['n'] = 1
+		p['ok'] = true
+		const d: UTSJSONObject = {}
+		d['from-data'] = 'get-body'
+		get<any>('/api/http/method/get', {
+			params: p,
+			data: d
+		}).then((res) => {
+			let url = ''
+			const cfg = res.config
+			if (cfg != null) {
+				url = cfg.url
+			}
+			log('02', 'url=' + url)
+			log('02', 'data=' + JSON.stringify(res.data))
+		}).catch((err) => {
+			catchLog('02', err as RequestError)
+		})
+	}
+
+	/* ===== 03 相对路径无 baseURL → ERR_CONFIG（fail-fast 不发网络；用隔离实例避开全局默认 baseURL） ===== */
+	function t03ErrConfig(): void {
+		const isolated = createRequest(null)
+		isolated.request({ url: '/api/relative' }).then((res) => {
+			log('03', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('03', err as RequestError)
+		})
+	}
+
+	/* ===== 04 url 空串 → ERR_PARAM ===== */
+	function t04ErrParam(): void {
+		request<any>({ url: '' }).then((res) => {
+			log('04', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('04', err as RequestError)
+		})
+	}
+
+	/* ===== 05 七种 method 顺序实测 ===== */
+	function t05Methods(): void {
+		const methods: Array<RequestMethod> = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
+		let i = 0
+		const next = (): void => {
+			if (i >= methods.length) {
+				log('05', '七种 method 全部完成')
+				return
+			}
+			const m = methods[i]
+			i++
+			request<any>({
+				url: '/api/http/method/' + m.toLowerCase(),
+				method: m
+			}).then((res) => {
+				log('05', m + ' statusCode=' + res.statusCode.toString())
+				next()
+			}).catch((err) => {
+				catchLog('05 ' + m, err as RequestError)
+				next()
+			})
+		}
+		next()
+	}
+
+	/* ===== 06 POST UTSJSONObject data 透传 + content-type 自动补设 ===== */
+	function t06Post(): void {
+		post<any>('/api/http/method/post', {
+			hello: 'unix-request',
+			n: 1
+		} as UTSJSONObject, null).then((res) => {
+			log('06', 'statusCode=' + res.statusCode.toString() + ' content-type=' + headerVal(res.config, 'content-type'))
+			log('06', 'data=' + JSON.stringify(res.data))
+		}).catch((err) => {
+			catchLog('06', err as RequestError)
+		})
+	}
+
+	/* ===== 07 header 三级合并：全局 < 请求级（同名键覆盖） ===== */
+	function t07Header(): void {
+		const reqHeader: UTSJSONObject = {}
+		reqHeader['x-req'] = 'req-level'
+		reqHeader['x-global'] = 'override-by-req'
+		post<any>('/api/http/method/post', { ping: true } as UTSJSONObject, {
+			header: reqHeader
+		}).then((res) => {
+			log('07', 'x-global=' + headerVal(res.config, 'x-global') + '（期望 override-by-req） x-req=' + headerVal(res.config, 'x-req') + '（期望 req-level）')
+		}).catch((err) => {
+			catchLog('07', err as RequestError)
+		})
+	}
+
+	/* ===== 08 4xx / 5xx：validateStatus 失败挂 response ===== */
+	function t08Status(): void {
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('08 404', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('08 404', err as RequestError)
+		})
+		request<any>({ url: '/api/http/statusCode/500' }).then((res) => {
+			log('08 500', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('08 500', err as RequestError)
+		})
+	}
+
+	/* ===== 09 超时：不可路由地址 + timeout（期望 ERR_TIMEOUT + nativeErrCode=5；web 端可能 ERR_NETWORK，记录实际值） ===== */
+	function t09Timeout(): void {
+		request<any>({ url: 'https://10.255.255.1:81/slow', timeout: 2000 }).then((res) => {
+			log('09', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('09', err as RequestError)
+		})
+	}
+
+	/* ===== 10 取消：发送前已取消 + 飞行中确定性 abort ===== */
+	function t10Cancel(): void {
+		const pre = createCancelSource()
+		pre.cancel('发送前取消')
+		request<any>({ url: '/api/http/method/get', cancelToken: pre.token }).then((res) => {
+			log('10a', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('10a 发送前取消', err as RequestError)
+		})
+		const fly = createCancelSource()
+		request<any>({ url: '/api/http/method/get', cancelToken: fly.token }).then((res) => {
+			log('10b', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('10b 飞行中取消', err as RequestError)
+		})
+		setTimeout(() => {
+			fly.cancel('页面卸载')
+		}, 100)
+	}
+
+	/* ===== 11 transformRequest / transformResponse 替换内置 ===== */
+	function t11Transform(): void {
+		let reqDone = false
+		let resDone = false
+		post<any>('/api/http/method/post', { hello: 'origin' } as UTSJSONObject, {
+			// 回调参数签名与库类型对齐（any | null，Kotlin 端函数类型参数逆变约束）
+			transformRequest: (data: any | null): any => {
+				reqDone = true
+				const obj = data as UTSJSONObject
+				obj['added-by-transform'] = 'yes'
+				return obj
+			},
+			transformResponse: (data: any | null): any => {
+				resDone = true
+				const wrapper: UTSJSONObject = {}
+				wrapper['wrapped'] = data
+				return wrapper
+			}
+		}).then((res) => {
+			log('11', 'transformRequest=' + reqDone.toString() + ' transformResponse=' + resDone.toString())
+			log('11', 'data=' + JSON.stringify(res.data))
+		}).catch((err) => {
+			catchLog('11', err as RequestError)
+		})
+	}
+
+	/* ===== 12 拦截器语义：注入 / 变换 / 恢复 / 换错 / 放行 / eject（顺序执行避免相互污染） ===== */
+	function t12Interceptors(): void {
+		log('12', '开始')
+		t12a(() => {
+			t12b(() => {
+				t12c(() => {
+					t12d(() => {
+						log('12', '全链完成')
+					})
+				})
+			})
+		})
+	}
+
+	/** 12a 请求拦截注入 header + 响应 onFulfilled 变换 + eject 后失效 */
+	function t12a(done: () => void): void {
+		const rid = useRequestInterceptor((config) => {
+			const h = config.header
+			if (h != null) {
+				h['x-intercepted'] = 'yes'
+			}
+			return config
+		})
+		const sid = useResponseInterceptor((res) => {
+			log('12a', 'onFulfilled 收到 statusCode=' + res.statusCode.toString())
+			return res
+		}, null)
+		get<any>('/api/http/method/get', null).then((res) => {
+			log('12a', '注入 header=' + headerVal(res.config, 'x-intercepted') + '（期望 yes）')
+			ejectInterceptor(rid)
+			ejectInterceptor(sid)
+			get<any>('/api/http/method/get', null).then((res2) => {
+				log('12a', 'eject 后 header=' + headerVal(res2.config, 'x-intercepted') + '（期望 null）')
+				done()
+			}).catch((err) => {
+				catchLog('12a eject后', err as RequestError)
+				done()
+			})
+		}).catch((err) => {
+			catchLog('12a', err as RequestError)
+			ejectInterceptor(rid)
+			ejectInterceptor(sid)
+			done()
+		})
+	}
+
+	/** 12b onRejected 恢复：404 → 返回兜底 ResponseResult 转 resolve */
+	function t12b(done: () => void): void {
+		const recId = useResponseInterceptor(null, (err) => {
+			if (err.code == 'ERR_BAD_REQUEST') {
+				log('12b', 'onRejected 收到 ' + err.code + '，执行恢复')
+				const fallback: ResponseAny = {
+					data: 'recovered-from-404',
+					statusCode: 599,
+					header: null,
+					cookies: [] as Array<string>,
+					config: err.config
+				}
+				return fallback
+			}
+			return null
+		})
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('12b', '恢复成功 data=' + JSON.stringify(res.data) + ' statusCode=' + res.statusCode.toString())
+			ejectInterceptor(recId)
+			done()
+		}).catch((err) => {
+			catchLog('12b 恢复失败', err as RequestError)
+			ejectInterceptor(recId)
+			done()
+		})
+	}
+
+	/** 12c onRejected 换错：404 → ERR_CANCELED */
+	function t12c(done: () => void): void {
+		const mapId = useResponseInterceptor(null, (err) => {
+			const converted: RequestError = {
+				code: 'ERR_CANCELED',
+				errSubject: 'unix-request',
+				errMsg: '业务转换后的错误',
+				nativeErrCode: null,
+				statusCode: null,
+				config: err.config,
+				response: null
+			}
+			return converted
+		})
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('12c', '不应成功 statusCode=' + res.statusCode.toString())
+			ejectInterceptor(mapId)
+			done()
+		}).catch((err) => {
+			catchLog('12c 换错', err as RequestError)
+			ejectInterceptor(mapId)
+			done()
+		})
+	}
+
+	/** 12d onRejected 放行：返回 null 携带原错误继续 reject */
+	function t12d(done: () => void): void {
+		const passId = useResponseInterceptor(null, (err) => {
+			log('12d', 'onRejected 收到 ' + err.code + '，放行')
+			return null
+		})
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('12d', '不应成功 statusCode=' + res.statusCode.toString())
+			ejectInterceptor(passId)
+			done()
+		}).catch((err) => {
+			catchLog('12d 放行', err as RequestError)
+			ejectInterceptor(passId)
+			done()
+		})
+	}
+
+	/* ===== 13 createRequest 多实例隔离：defaults（getUri）+ 拦截器（header 标记） ===== */
+	function t13Instances(): void {
+		const instA = createRequest({ baseURL: 'https://a.test', timeout: 10000, header: null, validateStatus: null })
+		const instB = createRequest({ baseURL: 'https://b.test', timeout: 20000, header: null, validateStatus: null })
+		log('13', 'defaults 隔离 A=' + instA.getUri({ url: '/x' }) + ' B=' + instB.getUri({ url: '/x' }))
+		const netA = createRequest({ baseURL: HOST, timeout: 10000, header: null, validateStatus: null })
+		const netB = createRequest({ baseURL: HOST, timeout: 10000, header: null, validateStatus: null })
+		const rid = netA.useRequestInterceptor((config) => {
+			const h = config.header
+			if (h != null) {
+				h['x-only-a'] = 'A'
+			}
+			return config
+		})
+		netA.request({ url: '/api/http/method/get' }).then((resA) => {
+			netB.request({ url: '/api/http/method/get' }).then((resB) => {
+				log('13', '拦截器隔离 A 标记=' + headerVal(resA.config, 'x-only-a') + '（期望 A） B 标记=' + headerVal(resB.config, 'x-only-a') + '（期望 null）')
+				netA.ejectInterceptor(rid)
+			}).catch((err) => {
+				catchLog('13 B', err as RequestError)
+			})
+		}).catch((err) => {
+			catchLog('13 A', err as RequestError)
+		})
+	}
+
+	/* ===== 14 configureRequest 全局生效：相对路径走全局 baseURL + 全局 header ===== */
+	function t14Global(): void {
+		get<any>('/api/http/method/get', null).then((res) => {
+			log('14', '相对路径成功 statusCode=' + res.statusCode.toString() + ' x-global=' + headerVal(res.config, 'x-global') + '（期望 global-default）')
+		}).catch((err) => {
+			catchLog('14', err as RequestError)
+		})
+	}
+
+	/* ===== 15 responseType=arraybuffer（各端生效性差异如实记录） ===== */
+	function t15ArrayBuffer(): void {
+		request<any>({ url: '/api/http/contentType/image/gif', responseType: 'arraybuffer' }).then((res) => {
+			const d = res.data
+			if (d instanceof ArrayBuffer) {
+				log('15', 'ArrayBuffer byteLength=' + (d as ArrayBuffer).byteLength.toString())
+			} else {
+				log('15', 'data 非 ArrayBuffer：' + typeof d + ' ' + JSON.stringify(d))
+			}
+		}).catch((err) => {
+			catchLog('15', err as RequestError)
+		})
+	}
+
+	/** 一键全跑（12 拦截器链内部自顺序化，用例各自 eject 清理） */
+	function runAll(): void {
+		t01GetUri()
+		t02Query()
+		t03ErrConfig()
+		t04ErrParam()
+		t05Methods()
+		t06Post()
+		t07Header()
+		t08Status()
+		t09Timeout()
+		t10Cancel()
+		t11Transform()
+		t12Interceptors()
+		t13Instances()
+		t14Global()
+		t15ArrayBuffer()
+	}
+</script>
+
+<style>
+	.container {
+		flex: 1;
+		flex-direction: column;
+		align-items: center;
+		padding: 20rpx;
+	}
+
+	.title {
+		font-size: 32rpx;
+		font-weight: bold;
+		margin: 10rpx 0;
+	}
+
+	.section {
+		font-size: 26rpx;
+		color: #666666;
+		margin: 12rpx 0 4rpx 0;
+	}
+
+	.row {
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+	}
+
+	.logs {
+		flex-direction: column;
+		align-self: stretch;
+		margin-top: 16rpx;
+		padding: 0 10rpx;
+	}
+
+	.log {
+		font-size: 22rpx;
+		color: #333333;
+		margin-bottom: 4rpx;
+	}
+</style>

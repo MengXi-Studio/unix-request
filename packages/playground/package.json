@@ -1,0 +1,9 @@
+{
+	"name": "@meng-xi/unix-request-playground",
+	"version": "0.1.0",
+	"private": true,
+	"devDependencies": {
+		"@dcloudio/vite-plugin-uni": "3.0.0-alpha-5020520260821001",
+		"vite": "5.2.8"
+	}
+}

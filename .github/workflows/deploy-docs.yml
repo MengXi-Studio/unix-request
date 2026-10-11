@@ -1,0 +1,73 @@
+# 文档部署到 GitHub Pages（自动 + 手动触发）
+name: Deploy Docs to GitHub Pages
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'packages/docs/**'
+      - .github/workflows/deploy-docs.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 检出代码（拉取完整历史，用于 lastUpdated）
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # 安装 pnpm
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.31.0
+
+      # 设置 Node.js 环境，启用 pnpm 缓存
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.14.0
+          cache: pnpm
+
+      # 配置 GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v6
+
+      # 安装依赖
+      - name: Install dependencies
+        run: pnpm install
+
+      # 构建文档（base 路径默认 /unix-utils/，见 .vitepress/config/index.ts）
+      - name: Build docs
+        run: pnpm run build:docs
+
+      # 上传构建产物
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: ./packages/docs/.vitepress/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
+    name: Deploy
+    steps:
+      # 部署到 GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

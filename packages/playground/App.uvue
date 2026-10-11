@@ -1,0 +1,8 @@
+<script setup lang="uts">
+	onLaunch(() => {
+		console.log('App Launch')
+	})
+</script>
+
+<style>
+</style>

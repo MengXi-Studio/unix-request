@@ -1,0 +1,33 @@
+{
+	"name": "unix-request",
+	"type": "module",
+	"version": "0.1.0",
+	"private": true,
+	"description": "为 uni-app x 提供对标 Axios 功能体系的网络请求库",
+	"packageManager": "pnpm@10.31.0",
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"sync:uni-modules": "node scripts/sync-uni-modules.mjs",
+		"sync:uni-modules:check": "node scripts/sync-uni-modules.mjs --check",
+		"release": "bumpp",
+		"typecheck": "tsc -p tsconfig.json --noEmit"
+	},
+	"devDependencies": {
+		"bumpp": "^12.3.0",
+		"prettier": "^3.8.1",
+		"typescript": "^5.9.3"
+	},
+	"author": {
+		"name": "PedroQue99",
+		"email": "ksmengfang@163.com"
+	},
+	"license": "MIT",
+	"homepage": "https://github.com/MengXi-Studio/unix-request#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/MengXi-Studio/unix-request.git"
+	},
+	"bugs": "https://github.com/MengXi-Studio/unix-request/issues"
+}

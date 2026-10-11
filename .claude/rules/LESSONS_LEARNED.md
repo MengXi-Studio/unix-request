@@ -1,0 +1,52 @@
+# 经验教训记录（Strict：仅记录经运行验证的坑）
+
+## 2026-10-10 M2 spike（HBuilderX 5.26 / Windows / playground __UNI__1927897）
+
+### UTS 插件内部相对 import 三规则（全部实测，Android uts 链 "index not found" 根因）
+
+1. **目录 import 要求目录内有 index.uts**：`from '../types'` 解析到 `types/index.uts`，目录内只有具名文件（如 `types/request.uts`）必失败。与 unix-utils 桶文件惯例一致。
+2. **import 路径禁止显式 .uts 扩展名（目录中转场景）**：`from '../types/request.uts'`（文件实际存在）仍报 `index not found`——rust 分析器把带扩展名的路径再按目录解析。省略扩展名（`from '../constants/defaults'`）或目录（含 index.uts）均可。
+3. **index.uts（目录入口）内部不写跨级相对路径**：桶文件里 `export type { ... } from '../../interface.uts'` 触发 `index not found`（同目录文件 `./xxx` 正常）。unix-utils 同款结构（types/index.uts 只引 `./toast`，向上引用放具名文件 toast.uts）。**稳妥策略：跨级（../interface.uts / ../types）引用全部写在具名文件里，桶只做同目录聚合**。
+
+### HBuilderX CLI 工具链
+
+4. **CLI 编译全流程需要有效 appid**：`publish`（h5 / mp-weixin / appResource）与 `launch` 均校验，占位 appid（如 `__UNI__8F3C21`）或空值都报「appid 不存在，请在 manifest.json 中重新获取」。appid 只能由已登录 HBuilderX（`cli user info` 确认）在 GUI manifest 可视化页「重新获取」，CLI 无获取命令。
+5. **`launch web --compile true` = 编译模式**：编译成功即退出（无常驻服务），日志判据「项目 playground 编译成功。」；不带 --compile 的 `launch web` 起常驻 vite dev server，但其对 `.uts` 按需转译未接管（`/main.uts` 原样返回源码，浏览器白屏）——**Web 端运行验证不能用 dev server 白屏判断**，uts2js 全链路的硬证据是 `publish --platform mp-weixin` 完整产物。
+6. **微信产物 API 按页面引用图导出**：`dist/build/mp-weixin/uni_modules/<id>/utssdk/index.js` 的 exports 只含页面实际 import 的 API（未引用的 request/put/patch/del/head/options/configureRequest 不出现）——是 uts-proxy 按需导出的正常形态，不是丢 API。
+7. **CLI open 必须先行**：`cli open` 启动 HBuilderX 后 `cli project open --path <绝对路径>` 导入项目（重复导入同一项目会在列表出现多条，无碍）。
+8. **PowerShell 调 cli.exe 输出**：`& 'D:\HBuilderX\cli.exe' ... 2>&1 | Out-String`；`curl` 是 Invoke-WebRequest 别名须用 `curl.exe`；powershell profile 加载报错不影响命令执行。
+9. **uts-proxy 类型名重整自洽（__1）**：插件 Kotlin 产物中对外类型名被重整（RequestConfig__1 / RequestError__1 / ResponseAny__1，避让框架同名符号），但 uts-proxy 代理层按原名索引对应，编译通过即自洽无害（与 LESSONS 20「同名 typealias 重整自洽」同类）。
+
+### 泛型导出（Q10 spike 结论）
+
+10. **插件导出泛型全链路可行**：`export type Request = <T>(config: RequestConfig) => Promise<ResponseResult<T>>`（泛型函数类型别名）+ `export const request: Request = function <T>(...)`（泛型 const 入口）+ `ResponseResult<T>`（泛型响应 type）在 UTS→Kotlin 转换层完整保留（`typealias Request = <T>(config: RequestConfig__1) -> UTSPromise<ResponseResult<T>>`）。遗留：该 Kotlin 泛型 typealias 语法未经 Kotlin 编译器验证（appResource 只产出 .kt；dex 需真机/云打包，M4 首项）。
+11. **含函数字段的对象可跨代理返回**：RequestInstance 13 个函数字段（含双可选函数参数的 useResponseInterceptor）Kotlin class 生成正常，createRequest 多实例进 v1（Q2 落定）。
+
+### pnpm / 环境
+
+12. **pnpm store 在项目外（E:\.pnpm-store）**：沙箱模式禁止符号链接创建导致 install 失败（exit -4048），需非沙箱执行。
+
+## 2026-10-11 M2 管线全量实现（三端编译回归，产物级验证）
+
+### 对象联合类型的跨端运行时判别（onRejected 返回 ResponseAny | RequestError | null）
+
+13. **联合类型编码差异大，instanceof / typeof 全不可用**：Kotlin 端对象联合编译为 `Any?`（真实类实例），web 端 type 别名擦除（但 RequestError 等 type 编译为真实 class 构造器）。**跨端统一判别策略：`as RequestError` 强转探针 + errSubject 契约值比对**（库内错误 errSubject 恒为 'unix-request'，ResponseResult 无此字段）。
+14. **UTS catch 编译为 Kotlin `catch (e: Throwable)`**（产物验证）——`ResponseResult as RequestError` 的 ClassCastException 可被捕获，强转探针在 Android 运行时安全；web 端 `as` 擦除后等价于字段探测（undefined ≠ 契约值）。**Swift 端 `as` 语义（as! 崩溃 vs as? 空安全）未验证，M4 iOS 首测项**。
+
+### 跨文件类型引用与编译器差异
+
+15. **Kotlin 同包 type 引用免 import 会静默通过，但 web/TS 检查器要求显式 import type**（报 warning 不报 error）——插件内跨文件类型引用必须全部显式 import，且验收要以 h5 release 编译零 warning 为准（Kotlin 通过 ≠ 无问题）。
+
+### HBuilderX CLI（5.26 补充）
+
+16. **`launch web --compile true` 行为不稳定**（同一命令本次走了 dev server 模式且无产物输出）；Web 端硬产物验证改用 **`publish --platform h5`**（release 编译，TS 检查更严格，warning 也会暴露）。
+17. **uni.request 泛型调用形态可用**：`uni.request<RequestSuccess<any>>({...} as RequestOptions<RequestSuccess<any>>)` 三端编译通过；自定义 RequestMethod 字面量联合可直接赋给 `RequestOptions.method`（string）；`uni.request` 返回值可在同一同步块内登记 cancel 注册表（check→send→register 无异步间隙，无竞态）。
+
+## 2026-10-11 M3 运行时验证（Web 真实网络 15/15 通过）
+
+18. **快捷方法 method 必须由方法名固定注入，不得依赖 config.method 透传**：快捷 config 通常为 null → 构造的 RequestConfig.method 为 null → normalize 兜底 'GET' → post/put/patch **静默以 GET 发出**（编译期零告警，服务端 405 才暴露）。同型陷阱：依赖「调用方总会传某字段」的隐式契约都会在快捷路径上断裂。
+19. **uni-app x web（VDOM 模式）页面加载后事件桥未就绪**：自动化 browser_click 立即点击会**静默失效**（无报错、handler 不执行）；等待数秒或对内部真实元素程序化 `.click()` 可触发。浏览器自动化验证 uni-app x 页面的固定套路：navigate → 等待 ≥10s → snapshot 定位 → click → 失败则 evaluate 程序化 click 兜底。
+20. **release 编译 tree-shake 未被页面引用的插件导出**（h5 与 mp-weixin 一致）：del/put/patch/head/options 不在产物 exports 中，属按需引用正常形态（与 LESSONS 6 同型），不代表库缺 API；库完整性以源码与按需产物引用图为准。
+21. **GET/HEAD 的 transformRequest 收到 null**：normalize 先把 data 并入 query 并置 null，transform 在 normalize 之后执行——自定义 transformRequest 内对 data 取属性会 TypeError（本轮由 method bug 下游暴露：post 被降级为 GET 后 data 进 query → transform 收 null → ERR_NATIVE「transformRequest 执行异常」）。设计语义：transform 作用于发送快照，GET/HEAD 场景 data 恒为 null，transform 内需判空。
+22. **入口 export type 同目录转发可行**：`export type { ... } from './interface.uts'`（与入口同目录，非跨级）编译通过，消费方 `import type { RequestConfig } from '@/uni_modules/ux-request'` 正常解析——对外类型须经入口转发，仅 import 不导出会让消费方 TS 检查报「not exported」。
+23. **RequestQuickConfig 与 RequestConfig 拆分**：快捷方法 config 不含 url（url 由方法参数提供），避免调用方为满足 RequestConfig.url 必填传占位值——uts-proxy 对必填字段生成非空强转（NPE 红线），不能用「url 改可选」解决，只能拆类型。
