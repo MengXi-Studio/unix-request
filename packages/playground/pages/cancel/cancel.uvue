@@ -1,0 +1,68 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">CancelSource 取消请求：发送前已取消立即 reject ERR_CANCELED（不发网络）；飞行中取消确定性 abort 在途请求。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t10Cancel">10 取消</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request, createCancelSource } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 10 取消：发送前已取消 + 飞行中确定性 abort ===== */
+	function t10Cancel(): void {
+		const pre = createCancelSource()
+		pre.cancel('发送前取消')
+		request<any>({ url: '/api/http/method/get', cancelToken: pre.token }).then((res) => {
+			log('10a', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('10a 发送前取消', err as RequestError)
+		})
+		const fly = createCancelSource()
+		request<any>({ url: '/api/http/method/get', cancelToken: fly.token }).then((res) => {
+			log('10b', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('10b 飞行中取消', err as RequestError)
+		})
+		setTimeout(() => {
+			fly.cancel('页面卸载')
+		}, 100)
+	}
+</script>

@@ -1,0 +1,73 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">七种 method 逐一发送至官方回显服务，method 由请求方法名固定注入（request 级显式指定），顺序执行验证链路与状态码。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t05Methods">05 七种 method</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request } from '@/uni_modules/ux-request'
+	import type { RequestError, RequestMethod } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 05 七种 method 顺序实测 ===== */
+	function t05Methods(): void {
+		const methods: Array<RequestMethod> = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD']
+		let i = 0
+		const next = (): void => {
+			if (i >= methods.length) {
+				log('05', '七种 method 全部完成')
+				return
+			}
+			const m = methods[i]
+			i++
+			request<any>({
+				url: '/api/http/method/' + m.toLowerCase(),
+				method: m
+			}).then((res) => {
+				log('05', m + ' statusCode=' + res.statusCode.toString())
+				next()
+			}).catch((err) => {
+				catchLog('05 ' + m, err as RequestError)
+				next()
+			})
+		}
+		next()
+	}
+</script>

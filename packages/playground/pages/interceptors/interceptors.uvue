@@ -1,0 +1,163 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">axios 式拦截器语义：请求拦截注入 header、响应 onFulfilled 变换；onRejected 四条路径（恢复 / 换错 / 放行）；eject 后失效。四个子用例顺序执行避免相互污染。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t12Interceptors">12 拦截器语义</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request, get, useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/ux-request'
+	import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+	import { describeErr, headerVal } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 12 拦截器语义：注入 / 变换 / 恢复 / 换错 / 放行 / eject（顺序执行避免相互污染） ===== */
+	function t12Interceptors(): void {
+		log('12', '开始')
+		t12a(() => {
+			t12b(() => {
+				t12c(() => {
+					t12d(() => {
+						log('12', '全链完成')
+					})
+				})
+			})
+		})
+	}
+
+	/** 12a 请求拦截注入 header + 响应 onFulfilled 变换 + eject 后失效 */
+	function t12a(done: () => void): void {
+		const rid = useRequestInterceptor((config) => {
+			const h = config.header
+			if (h != null) {
+				h['x-intercepted'] = 'yes'
+			}
+			return config
+		})
+		const sid = useResponseInterceptor((res) => {
+			log('12a', 'onFulfilled 收到 statusCode=' + res.statusCode.toString())
+			return res
+		}, null)
+		get<any>('/api/http/method/get', null).then((res) => {
+			log('12a', '注入 header=' + headerVal(res.config, 'x-intercepted') + '（期望 yes）')
+			ejectInterceptor(rid)
+			ejectInterceptor(sid)
+			get<any>('/api/http/method/get', null).then((res2) => {
+				log('12a', 'eject 后 header=' + headerVal(res2.config, 'x-intercepted') + '（期望 null）')
+				done()
+			}).catch((err) => {
+				catchLog('12a eject后', err as RequestError)
+				done()
+			})
+		}).catch((err) => {
+			catchLog('12a', err as RequestError)
+			ejectInterceptor(rid)
+			ejectInterceptor(sid)
+			done()
+		})
+	}
+
+	/** 12b onRejected 恢复：404 → 返回兜底 ResponseResult 转 resolve */
+	function t12b(done: () => void): void {
+		const recId = useResponseInterceptor(null, (err) => {
+			if (err.code == 'ERR_BAD_REQUEST') {
+				log('12b', 'onRejected 收到 ' + err.code + '，执行恢复')
+				const fallback: ResponseAny = {
+					data: 'recovered-from-404',
+					statusCode: 599,
+					header: null,
+					cookies: [] as Array<string>,
+					config: err.config
+				}
+				return fallback
+			}
+			return null
+		})
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('12b', '恢复成功 data=' + JSON.stringify(res.data) + ' statusCode=' + res.statusCode.toString())
+			ejectInterceptor(recId)
+			done()
+		}).catch((err) => {
+			catchLog('12b 恢复失败', err as RequestError)
+			ejectInterceptor(recId)
+			done()
+		})
+	}
+
+	/** 12c onRejected 换错：404 → ERR_CANCELED */
+	function t12c(done: () => void): void {
+		const mapId = useResponseInterceptor(null, (err) => {
+			const converted: RequestError = {
+				code: 'ERR_CANCELED',
+				errSubject: 'unix-request',
+				errMsg: '业务转换后的错误',
+				nativeErrCode: null,
+				statusCode: null,
+				config: err.config,
+				response: null
+			}
+			return converted
+		})
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('12c', '不应成功 statusCode=' + res.statusCode.toString())
+			ejectInterceptor(mapId)
+			done()
+		}).catch((err) => {
+			catchLog('12c 换错', err as RequestError)
+			ejectInterceptor(mapId)
+			done()
+		})
+	}
+
+	/** 12d onRejected 放行：返回 null 携带原错误继续 reject */
+	function t12d(done: () => void): void {
+		const passId = useResponseInterceptor(null, (err) => {
+			log('12d', 'onRejected 收到 ' + err.code + '，放行')
+			return null
+		})
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('12d', '不应成功 statusCode=' + res.statusCode.toString())
+			ejectInterceptor(passId)
+			done()
+		}).catch((err) => {
+			catchLog('12d 放行', err as RequestError)
+			ejectInterceptor(passId)
+			done()
+		})
+	}
+</script>

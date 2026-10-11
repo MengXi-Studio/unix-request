@@ -1,0 +1,72 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">validateStatus（默认 2xx 通过）校验失败 → ERR_BAD_REQUEST 并携带 response（statusCode 与响应体）；不可路由地址 + timeout → ERR_TIMEOUT（web 端可能为 ERR_NETWORK，以日志实际值为准），nativeErrCode 原生透传。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t08Status">08 4xx/5xx</button>
+				<button size="mini" @click="t09Timeout">09 超时</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 08 4xx / 5xx：validateStatus 失败挂 response ===== */
+	function t08Status(): void {
+		request<any>({ url: '/api/http/statusCode/404' }).then((res) => {
+			log('08 404', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('08 404', err as RequestError)
+		})
+		request<any>({ url: '/api/http/statusCode/500' }).then((res) => {
+			log('08 500', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('08 500', err as RequestError)
+		})
+	}
+
+	/* ===== 09 超时：不可路由地址 + timeout（期望 ERR_TIMEOUT + nativeErrCode=5；web 端可能 ERR_NETWORK，记录实际值） ===== */
+	function t09Timeout(): void {
+		request<any>({ url: 'https://10.255.255.1:81/slow', timeout: 2000 }).then((res) => {
+			log('09', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('09', err as RequestError)
+		})
+	}
+</script>

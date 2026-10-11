@@ -1,8 +1,10 @@
 import App from './App.uvue'
 import { createSSRApp } from 'vue'
+import { router } from './router.config.uts'
 
 export function createApp() {
 	const app = createSSRApp(App)
+	app.use(router) // provide 路由 + 注入全局 mixin（onShow 自动 syncRoute）
 	return {
 		app
 	}

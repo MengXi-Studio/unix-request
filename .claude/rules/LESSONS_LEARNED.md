@@ -67,3 +67,9 @@
 
 31. **pack 必须 `--ignoreWarnings true`**：不传会因 x86 CPU 架构提示 + 首次打包计费确认交互中断命令行流程（CI 场景无人工确认通道）。
 32. **云打包 CLI 日志中继可能断连**：本地日志 0 字节 / 进程零 CPU 零网络 ≠ 云端任务失败，用官方 `cli pack status --project <路径>` 查真实状态；`cli logcat pack`（5.11+）可拉云端打包日志、`cli pack cancel`（5.14+）可取消。晚高峰排队约 65 分钟（队列 #214 实测），打包阶段本身约 1 分钟。
+
+## 2026-10-12 playground 多页重构（ux-router 接入，三端编译 + Web 冒烟）
+
+33. **publish 系列命令必须 `--project playground`**（HBuilderX 5.26 实证报「参数 project 值不能为空」，与 LESSONS 7 的 project open 同为前置）；`project list` 存在多条重名 playground 时，先对目标绝对路径执行 `project open` 再 publish，编译日志会回显 appid（__UNI__1927897）可确认指向正确。
+34. **后台 Shell 任务起服务时 cwd 可能不生效**：`npx serve -l 8123 .`（cwd=dist/build/web）实际落在项目根，返回 dev 模板 index.html（引用 /main.uts 与 /@vite/client），页面白屏且控制台零报错——硬证据是 serve 日志出现 `GET /main.uts`（release 构建不可能请求该路径）。对策：后台命令一律用绝对路径参数（`serve -l 8123 <abs-path>`），不依赖 cwd。
+35. **history 路由模式深链接需 SPA fallback**：`npx serve` 默认对 /pages/xxx/xxx 返回 404（静态服务器行为，非应用 bug，应用内 router.push 点击导航不受影响）；验证深链接须 `serve --single`。

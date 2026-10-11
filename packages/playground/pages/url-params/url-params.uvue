@@ -1,0 +1,92 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">getUri 展示 baseURL 拼接的斜杠容错、params 确定性编码与绝对地址不拼接；params 显式编码与 GET data 并入 query 由真实网络请求的 response.config.url 与服务端回显验证。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t01GetUri">01 getUri 编码</button>
+				<button size="mini" @click="t02Query">02 params+GETdata</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { get, getUri } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 01 getUri：params 确定性编码 + baseURL 斜杠容错 + 绝对地址不拼接 ===== */
+	function t01GetUri(): void {
+		log('01', getUri({
+			url: '/x',
+			baseURL: 'https://api.test/v1/',
+			params: {
+				a: 'a b',
+				n: 1,
+				ok: true
+			} as UTSJSONObject
+		}))
+		log('01', getUri({ url: 'y', baseURL: 'https://api.test/v1' }))
+		log('01', getUri({
+			url: 'https://abs.test/z?a=1',
+			baseURL: 'https://should-ignore.test',
+			params: { b: 'b/c' } as UTSJSONObject
+		}))
+	}
+
+	/* ===== 02 params + GET data 并入 query（网络实测：response.config.url 与回显） ===== */
+	function t02Query(): void {
+		const p: UTSJSONObject = {}
+		p['a'] = 'a b'
+		p['n'] = 1
+		p['ok'] = true
+		const d: UTSJSONObject = {}
+		d['from-data'] = 'get-body'
+		get<any>('/api/http/method/get', {
+			params: p,
+			data: d
+		}).then((res) => {
+			let url = ''
+			const cfg = res.config
+			if (cfg != null) {
+				url = cfg.url
+			}
+			log('02', 'url=' + url)
+			log('02', 'data=' + JSON.stringify(res.data))
+		}).catch((err) => {
+			catchLog('02', err as RequestError)
+		})
+	}
+</script>

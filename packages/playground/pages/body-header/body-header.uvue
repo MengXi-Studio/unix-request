@@ -1,0 +1,76 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">POST 以 UTSJSONObject 透传请求体并按 data 类型自动补设 content-type；header 按 全局 &lt; 请求级 浅合并，同名键请求级覆盖，经服务端回显的 config.header 验证。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t06Post">06 POST+CT补设</button>
+				<button size="mini" @click="t07Header">07 header 三级合并</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { post } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr, headerVal } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 06 POST UTSJSONObject data 透传 + content-type 自动补设 ===== */
+	function t06Post(): void {
+		post<any>('/api/http/method/post', {
+			hello: 'unix-request',
+			n: 1
+		} as UTSJSONObject, null).then((res) => {
+			log('06', 'statusCode=' + res.statusCode.toString() + ' content-type=' + headerVal(res.config, 'content-type'))
+			log('06', 'data=' + JSON.stringify(res.data))
+		}).catch((err) => {
+			catchLog('06', err as RequestError)
+		})
+	}
+
+	/* ===== 07 header 三级合并：全局 < 请求级（同名键覆盖） ===== */
+	function t07Header(): void {
+		const reqHeader: UTSJSONObject = {}
+		reqHeader['x-req'] = 'req-level'
+		reqHeader['x-global'] = 'override-by-req'
+		post<any>('/api/http/method/post', { ping: true } as UTSJSONObject, {
+			header: reqHeader
+		}).then((res) => {
+			log('07', 'x-global=' + headerVal(res.config, 'x-global') + '（期望 override-by-req） x-req=' + headerVal(res.config, 'x-req') + '（期望 req-level）')
+		}).catch((err) => {
+			catchLog('07', err as RequestError)
+		})
+	}
+</script>

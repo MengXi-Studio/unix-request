@@ -1,0 +1,68 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">参数非法在发送前 fail-fast：相对路径无 baseURL 抛 ERR_CONFIG（不发网络，用隔离实例避开全局默认 baseURL）；url 空串抛 ERR_PARAM。统一收敛为 RequestError（errSubject=unix-request）。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t03ErrConfig">03 ERR_CONFIG</button>
+				<button size="mini" @click="t04ErrParam">04 ERR_PARAM</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request, createRequest } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 03 相对路径无 baseURL → ERR_CONFIG（fail-fast 不发网络；用隔离实例避开全局默认 baseURL） ===== */
+	function t03ErrConfig(): void {
+		const isolated = createRequest(null)
+		isolated.request({ url: '/api/relative' }).then((res) => {
+			log('03', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('03', err as RequestError)
+		})
+	}
+
+	/* ===== 04 url 空串 → ERR_PARAM ===== */
+	function t04ErrParam(): void {
+		request<any>({ url: '' }).then((res) => {
+			log('04', '不应成功 statusCode=' + res.statusCode.toString())
+		}).catch((err) => {
+			catchLog('04', err as RequestError)
+		})
+	}
+</script>

@@ -1,0 +1,74 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">transformRequest / transformResponse 替换内置默认转换：请求发出前注入字段、响应 data 包裹一层 wrapped，回调参数签名为 any | null。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t11Transform">11 transform 替换</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { post } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 11 transformRequest / transformResponse 替换内置 ===== */
+	function t11Transform(): void {
+		let reqDone = false
+		let resDone = false
+		post<any>('/api/http/method/post', { hello: 'origin' } as UTSJSONObject, {
+			// 回调参数签名与库类型对齐（any | null，Kotlin 端函数类型参数逆变约束）
+			transformRequest: (data: any | null): any => {
+				reqDone = true
+				const obj = data as UTSJSONObject
+				obj['added-by-transform'] = 'yes'
+				return obj
+			},
+			transformResponse: (data: any | null): any => {
+				resDone = true
+				const wrapper: UTSJSONObject = {}
+				wrapper['wrapped'] = data
+				return wrapper
+			}
+		}).then((res) => {
+			log('11', 'transformRequest=' + reqDone.toString() + ' transformResponse=' + resDone.toString())
+			log('11', 'data=' + JSON.stringify(res.data))
+		}).catch((err) => {
+			catchLog('11', err as RequestError)
+		})
+	}
+</script>

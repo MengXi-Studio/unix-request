@@ -1,0 +1,62 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">responseType: arraybuffer 二进制响应，验证 data 为 ArrayBuffer 并输出 byteLength；各端生效性存在差异，非 ArrayBuffer 时如实记录实际类型。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t15ArrayBuffer">15 ArrayBuffer</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { request } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { describeErr } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 15 responseType=arraybuffer（各端生效性差异如实记录） ===== */
+	function t15ArrayBuffer(): void {
+		request<any>({ url: '/api/http/contentType/image/gif', responseType: 'arraybuffer' }).then((res) => {
+			const d = res.data
+			if (d instanceof ArrayBuffer) {
+				log('15', 'ArrayBuffer byteLength=' + (d as ArrayBuffer).byteLength.toString())
+			} else {
+				log('15', 'data 非 ArrayBuffer：' + typeof d + ' ' + JSON.stringify(d))
+			}
+		}).catch((err) => {
+			catchLog('15', err as RequestError)
+		})
+	}
+</script>

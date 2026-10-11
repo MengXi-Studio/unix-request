@@ -1,0 +1,98 @@
+<template>
+	<scroll-view style="flex:1">
+		<view class="container">
+			<view class="intro">
+				<text class="intro-title">功能说明</text>
+				<text class="intro-text">createRequest 多实例相互隔离 defaults（baseURL / timeout）与拦截器注册表；configureRequest 全局默认（baseURL / header）对相对路径请求生效。全局配置用例结束后复位原值，避免影响其他页面。</text>
+			</view>
+
+			<text class="section">用例</text>
+			<view class="row">
+				<button size="mini" @click="t13Instances">13 多实例隔离</button>
+				<button size="mini" @click="t14Global">14 全局配置</button>
+			</view>
+
+			<view class="logs">
+				<view class="logs-head">
+					<text class="logs-title">运行日志</text>
+					<button size="mini" @click="clearLog">清空</button>
+				</view>
+				<text v-for="(line, index) in logs" :key="index" class="log">{{ line }}</text>
+			</view>
+		</view>
+	</scroll-view>
+</template>
+
+<script setup lang="uts">
+	import { get, createRequest, useRequestInterceptor, ejectInterceptor, configureRequest } from '@/uni_modules/ux-request'
+	import type { RequestError } from '@/uni_modules/ux-request'
+	import { HOST, describeErr, headerVal } from '@/common/test-utils.uts'
+
+	const logs = reactive<string[]>([])
+
+	function log(tag: string, msg: string): void {
+		const line = '[' + tag + '] ' + msg
+		logs.unshift(line)
+		if (logs.length > 200) {
+			logs.splice(200, logs.length - 200)
+		}
+		console.log(line)
+	}
+
+	function clearLog(): void {
+		logs.splice(0, logs.length)
+	}
+
+	function catchLog(tag: string, err: RequestError): void {
+		log(tag, 'reject ' + describeErr(err))
+	}
+
+	/* ===== 13 createRequest 多实例隔离：defaults（getUri）+ 拦截器（header 标记） ===== */
+	function t13Instances(): void {
+		const instA = createRequest({ baseURL: 'https://a.test', timeout: 10000, header: null, validateStatus: null })
+		const instB = createRequest({ baseURL: 'https://b.test', timeout: 20000, header: null, validateStatus: null })
+		log('13', 'defaults 隔离 A=' + instA.getUri({ url: '/x' }) + ' B=' + instB.getUri({ url: '/x' }))
+		const netA = createRequest({ baseURL: HOST, timeout: 10000, header: null, validateStatus: null })
+		const netB = createRequest({ baseURL: HOST, timeout: 10000, header: null, validateStatus: null })
+		const rid = netA.useRequestInterceptor((config) => {
+			const h = config.header
+			if (h != null) {
+				h['x-only-a'] = 'A'
+			}
+			return config
+		})
+		netA.request({ url: '/api/http/method/get' }).then((resA) => {
+			netB.request({ url: '/api/http/method/get' }).then((resB) => {
+				log('13', '拦截器隔离 A 标记=' + headerVal(resA.config, 'x-only-a') + '（期望 A） B 标记=' + headerVal(resB.config, 'x-only-a') + '（期望 null）')
+				netA.ejectInterceptor(rid)
+			}).catch((err) => {
+				catchLog('13 B', err as RequestError)
+			})
+		}).catch((err) => {
+			catchLog('13 A', err as RequestError)
+		})
+	}
+
+	/* ===== 14 configureRequest 全局生效：相对路径走全局 baseURL + 全局 header ===== */
+	function t14Global(): void {
+		get<any>('/api/http/method/get', null).then((res) => {
+			log('14', '相对路径成功 statusCode=' + res.statusCode.toString() + ' x-global=' + headerVal(res.config, 'x-global') + '（期望 global-default）')
+			restoreDefaults()
+		}).catch((err) => {
+			catchLog('14', err as RequestError)
+			restoreDefaults()
+		})
+	}
+
+	/** 复位全局默认（与 App.uvue onLaunch 配置一致），避免影响其他页面 */
+	function restoreDefaults(): void {
+		const globalHeader: UTSJSONObject = {}
+		globalHeader['x-global'] = 'global-default'
+		configureRequest({
+			baseURL: HOST,
+			timeout: 15000,
+			header: globalHeader,
+			validateStatus: null
+		})
+	}
+</script>

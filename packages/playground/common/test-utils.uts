@@ -1,0 +1,36 @@
+import type { RequestConfig, RequestError } from '@/uni_modules/ux-request'
+
+/** 官方测试服务器（hello uni-app x 同源） */
+export const HOST = 'https://request.dcloud.net.cn'
+
+/** 空安全读取响应 config.header 的键值 */
+export function headerVal(cfg: RequestConfig | null, key: string): string {
+	if (cfg == null) {
+		return 'config-null'
+	}
+	const h = cfg.header
+	if (h == null) {
+		return 'header-null'
+	}
+	const v = h[key]
+	if (v == null) {
+		return 'null'
+	}
+	return v as string
+}
+
+/** 统一错误摘要（code / errMsg / nativeErrCode / statusCode / response） */
+export function describeErr(err: RequestError): string {
+	let s = 'code=' + err.code + ' errMsg=' + err.errMsg
+	if (err.nativeErrCode != null) {
+		s += ' nativeErrCode=' + err.nativeErrCode.toString()
+	}
+	if (err.statusCode != null) {
+		s += ' statusCode=' + err.statusCode.toString()
+	}
+	const r = err.response
+	if (r != null) {
+		s += ' | response.statusCode=' + r.statusCode.toString() + ' responseBody=' + JSON.stringify(r.data)
+	}
+	return s
+}
