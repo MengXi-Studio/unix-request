@@ -11,7 +11,7 @@ import type { InstanceCore } from './types'
 import { dispatchImpl } from './core'
 import { getImpl, postImpl, putImpl, patchImpl, delImpl, headImpl, optionsImpl } from './shortcut'
 import { useRequestInterceptorImpl, useResponseInterceptorImpl, ejectInterceptorImpl } from './interceptors'
-import { normalizeRequest } from './utils/merge'
+import { normalizeRequest } from './config/normalize'
 import { BUILTIN_TIMEOUT, BUILTIN_VALIDATE_STATUS } from './constants/defaults'
 
 /** 构造内置默认（RequestDefaults 字段全 null 时逐项回退到这里的值） */

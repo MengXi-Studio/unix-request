@@ -2,8 +2,8 @@
 
 |              |                                                                                                                                                                                                                                    |
 | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 状态         | v0.6（core 管线全量实现 + Web 运行时验证通过：playground 15 项测试矩阵真实网络实测 15/15 符合预期；快捷方法 method 注入 bug 修复并引入 RequestQuickConfig；Web(h5 release) / 微信 / Android(UTS→Kotlin) 三端编译零 warning；鸿蒙 / iOS / Android dex 延后 M4） |
-| 日期         | 2026-10-11                                                                                                                                                                                                                         |
+| 状态         | v0.7（M4 Android dex 云打包验证通过：compileReleaseKotlin 零错误，泛型导出形态定稿为具名 `export function apiName<T>`；Web 15/15 运行时验证维持通过；微信端矩阵待开发者工具人工实测、Android 真机矩阵待真机、鸿蒙 / iOS 因环境限制延后） |
+| 日期         | 2026-10-12                                                                                                                                                                                                                         |
 | 工程惯例参照 | [unix-utils](https://github.com/MengXi-Studio/unix-utils) v0.8（标准 uni_modules UTS 插件形态 / monorepo / const 模式入口 / interface.uts 对外声明 / 中文注释）                                                                    |
 | 事实依据     | [uni-app x 官方 uni.request 文档](https://doc.dcloud.net.cn/uni-app-x/api/request.html)（2026-10 查证）、[Axios 官方文档](https://axios-http.com/docs/intro)（2026-10 查证）、unix-utils v0.8 实战红线（LESSONS_LEARNED 19/21 条） |
 
@@ -92,7 +92,7 @@ request 系统错误。另含 `errSubject` / `data` / `cause` / `errMsg`。
 
 1. **options 除真正必填字段外一律声明可选**（`?`）——uts-proxy 代理层对必填字段生成非空强转，业务漏传即 NPE（LESSONS 21）；
 2. **实现层函数一律加 `Impl` 后缀**，内部同语义常量加 `BUILTIN_` 前缀——插件全部 `.uts` 合并同一 Kotlin package，同名 top-level 符号触发导出符号静默重整（LESSONS 19）；
-3. **入口 const 模式**（`export const api: ApiType = function (...) {}`），对外类型全部内联声明在 `interface.uts`（转发链对 uts-proxy 不可见）；
+3. **入口声明模式**：非泛型 API 用官方 const 模式（`export const api: ApiType = function (...) {}`）；**泛型 API 必须用具名 `export function apiName<T>(...)` 声明**（M4 云打包实证：const 绑定的泛型函数字面量转译为 Kotlin 匿名 `fun <T>` 被 Kotlin 禁止，顶层具名 `fun <T>` 合法，见 3.11）。对外类型全部内联声明在 `interface.uts`（转发链对 uts-proxy 不可见）；
 4. **枚举无法跨 uts-proxy 边界**，method / 错误 code 一律字面量联合类型；
 5. **平台判定必须用条件编译**，不依赖运行时 API 字符串匹配（LESSONS 14）。
 
@@ -124,19 +124,19 @@ request 系统错误。另含 `errSubject` / `data` / `cause` / `errMsg`。
 ### 3.1 双层 API：默认实例 + 多实例（对标 axios 默认导出 + axios.create）
 
 ```ts
-/* ============ 默认实例（模块级单例，开箱即用） ============ */
-request(config: RequestConfig): Promise<ResponseResult>
-get(url: string, config: RequestConfig | null): Promise<ResponseResult>
-post(url: string, data: any | null, config: RequestConfig | null): Promise<ResponseResult>
-put(url: string, data: any | null, config: RequestConfig | null): Promise<ResponseResult>
-patch(url: string, data: any | null, config: RequestConfig | null): Promise<ResponseResult>
-del(url: string, config: RequestConfig | null): Promise<ResponseResult>      // delete 为 UTS 保留字，别名 del
-head(url: string, config: RequestConfig | null): Promise<ResponseResult>
-options(url: string, config: RequestConfig | null): Promise<ResponseResult>
-getUri(config: RequestConfig | null): string                                  // 构建完整 URL（含 params 编码）
+/* ============ 默认实例（模块级单例，开箱即用；泛型 API 用具名 export function 声明，见 1.5-3） ============ */
+request<T>(config: RequestConfig): Promise<ResponseResult<T>>
+get<T>(url: string, config: RequestQuickConfig | null): Promise<ResponseResult<T>>
+post<T>(url: string, data: any | null, config: RequestQuickConfig | null): Promise<ResponseResult<T>>
+put<T>(url: string, data: any | null, config: RequestQuickConfig | null): Promise<ResponseResult<T>>
+patch<T>(url: string, data: any | null, config: RequestQuickConfig | null): Promise<ResponseResult<T>>
+del<T>(url: string, config: RequestQuickConfig | null): Promise<ResponseResult<T>>     // delete 为 UTS 保留字，别名 del
+head<T>(url: string, config: RequestQuickConfig | null): Promise<ResponseResult<T>>
+options<T>(url: string, config: RequestQuickConfig | null): Promise<ResponseResult<T>>
+getUri(config: RequestConfig | null): string                                  // 构建完整 URL（含 params 编码；非泛型，const 模式）
 useRequestInterceptor(onFulfilled: (config: RequestConfig) => RequestConfig): number
-useResponseInterceptor(onFulfilled: ((res: ResponseResult) => ResponseResult) | null,
-  onRejected: ((err: RequestError) => ResponseResult | RequestError | null) | null): number
+useResponseInterceptor(onFulfilled: ((res: ResponseAny) => ResponseAny) | null,
+  onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null): number
 ejectInterceptor(id: number): void
 configureRequest(defaults: RequestDefaults): void                             // 默认实例 defaults
 
@@ -144,26 +144,28 @@ configureRequest(defaults: RequestDefaults): void                             //
 createRequest(defaults: RequestDefaults | null): RequestInstance
 ```
 
+> 泛型说明（v0.7 定稿）：T 仅静态标注 `ResponseResult<T>`（消费方 TS 视图的 data 类型），响应 data 实际以 `any` 流转、无运行时实例化需求——该形态规避了 uts-for-android 泛型传递丢失约束；实例方法 / 拦截器 data 以 `any` 返回（`ResponseAny = ResponseResult<any>`），业务侧按需断言。`RequestQuickConfig` 为无 url 字段的快捷 config 类型（url 由方法参数提供，与 RequestConfig 拆分）。
+
 ```ts
 /* 实例对象：与默认实例同构的成员集合（M2 spike 验证其跨代理形态，见 Q2） */
 export type RequestInstance = {
-	request: (config: RequestConfig) => Promise<ResponseResult>
-	get: (url: string, config: RequestConfig | null) => Promise<ResponseResult>
-	post: (url: string, data: any | null, config: RequestConfig | null) => Promise<ResponseResult>
-	put: (url: string, data: any | null, config: RequestConfig | null) => Promise<ResponseResult>
-	patch: (url: string, data: any | null, config: RequestConfig | null) => Promise<ResponseResult>
-	del: (url: string, config: RequestConfig | null) => Promise<ResponseResult>
-	head: (url: string, config: RequestConfig | null) => Promise<ResponseResult>
-	options: (url: string, config: RequestConfig | null) => Promise<ResponseResult>
+	request: (config: RequestConfig) => Promise<ResponseAny>
+	get: (url: string, config: RequestQuickConfig | null) => Promise<ResponseAny>
+	post: (url: string, data: any | null, config: RequestQuickConfig | null) => Promise<ResponseAny>
+	put: (url: string, data: any | null, config: RequestQuickConfig | null) => Promise<ResponseAny>
+	patch: (url: string, data: any | null, config: RequestQuickConfig | null) => Promise<ResponseAny>
+	del: (url: string, config: RequestQuickConfig | null) => Promise<ResponseAny>
+	head: (url: string, config: RequestQuickConfig | null) => Promise<ResponseAny>
+	options: (url: string, config: RequestQuickConfig | null) => Promise<ResponseAny>
 	getUri: (config: RequestConfig | null) => string
 	setConfig: (defaults: RequestDefaults) => void
 	useRequestInterceptor: (onFulfilled: (config: RequestConfig) => RequestConfig) => number
-	useResponseInterceptor: (onFulfilled: ((res: ResponseResult) => ResponseResult) | null, onRejected: ((err: RequestError) => ResponseResult | RequestError | null) | null) => number
+	useResponseInterceptor: (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null) => number
 	ejectInterceptor: (id: number) => void
 }
 ```
 
-> UTS 无 call signature（class 实例不可像函数调用），axios 的 `instance(config)` 直调形态不可行，统一走 `instance.request(config)`（Axios 自身亦有此方法）。`delete` 为 UTS 保留字，快捷方法命名 `del`。
+> UTS 无 call signature（class 实例不可像函数调用），axios 的 `instance(config)` 直调形态不可行，统一走 `instance.request(config)`（Axios 自身亦有此方法）。`delete` 为 UTS 保留字，快捷方法命名 `del`。实例方法不提供泛型（data 以 `any` 流转，见上方泛型说明）。
 
 ### 3.2 RequestConfig（对标 axios config，除 url 外全部可选——uts-proxy NPE 红线）
 
@@ -343,7 +345,8 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 ├── README.md / README-en.md / license.md
 ├── utssdk/
 │   ├── interface.uts                # 对外声明：API 函数类型别名 + 全部对外 type（内联，官方必需）
-│   ├── index.uts                    # 入口（const 模式）：默认实例 API + createRequest + createCancelSource + 常量
+│   ├── index.uts                    # 入口：泛型 API 具名 export function（request/快捷方法）+ 非泛型 const 模式
+│   │                                #   （getUri/拦截器/configureRequest/createRequest/createCancelSource）+ 常量
 │   └── request/
 │       ├── core.uts                 # dispatchImpl 主流程（3.8 管线）+ sendRequest（唯一 adapter 收敛点）
 │       │                            #   + classifyFail（fail 归类）+ runResponseChain（响应拦截器状态机）
@@ -352,7 +355,8 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 │       ├── interceptors/
 │       │   └── index.uts            # 拦截器注册表操作（注册表挂 InstanceCore，实例隔离；链路执行在 core.uts）
 │       ├── config/
-│       │   └── index.uts            # configureRequestImpl（默认实例 defaults 适配层；存储在 InstanceCore）
+│       │   ├── index.uts            # configureRequestImpl（默认实例 defaults 适配层；存储在 InstanceCore）
+│       │   └── normalize.uts        # normalizeRequest（三级合并 + baseURL 拼接 + query 编码 + fail-fast；配置域）
 │       ├── cancel/
 │       │   └── index.uts            # createCancelSourceImpl / token→task 注册表 / 确定性 abort
 │       ├── transform/
@@ -365,7 +369,6 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 │       │                            #   InstanceCore / NormalizeResult / ChainOutcome
 │       └── utils/
 │           ├── url.uts              # isAbsoluteUrl / encodeParams（确定性编码）/ appendQuery / joinUrl
-│           ├── merge.uts            # normalizeRequest（三级合并 + baseURL 拼接 + query 编码 + fail-fast）
 │           └── error.uts            # buildRequestError / isRequestErrorValue（联合类型判别探针）
 └── （无平台目录）                    # 纯编排层，uni.request 全端统一，无需平台目录
 ```
@@ -393,7 +396,7 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 
 | 风险                                                    | 说明                                                                                                   | 结论 / 缓解                                                                                                                                                                                                                                                                        |
 | ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| uts-proxy 对泛型导出的支持未知                          | 官方框架 API 已用泛型（RequestSuccess.data: T），但插件导出须经 uts-proxy 代理生成，能否编码泛型未验证 | ✅ **spike 通过**：`type Request = <T>(config) => Promise<ResponseResult<T>>` 泛型函数类型别名 + 泛型 const 入口 + `ResponseResult<T>` 泛型 type 全部通过编码，Kotlin 产物完整保留泛型（`typealias Request = <T>(...) -> UTSPromise<ResponseResult<T>>`）。Q10 方案 A 落定：全 API 泛型化。遗留：Kotlin 泛型 typealias 的 Kotlin 编译器层合法性待真机/云打包验证（M4 首项），失败则入口泛型降级 `data: any` |
+| uts-proxy 对泛型导出的支持未知                          | 官方框架 API 已用泛型（RequestSuccess.data: T），但插件导出须经 uts-proxy 代理生成，能否编码泛型未验证 | ✅ **spike 通过**：`type Request = <T>(config) => Promise<ResponseResult<T>>` 泛型函数类型别名 + 泛型 const 入口 + `ResponseResult<T>` 泛型 type 全部通过编码，Kotlin 产物完整保留泛型。Q10 方案 A 落定：全 API 泛型化。⚠️ **M4 实证修正（v0.7）**：spike 通过的是 UTS→Kotlin 转译层，Kotlin 编译器层 `typealias Request = <T>(...)` 为非法语法且 const 绑定泛型字面量被禁——最终形态定稿为入口具名 `export function apiName<T>(...)`（见下「泛型导出形态」行），云打包 compileReleaseKotlin 通过 |
 | `RequestInstance`（含函数字段的返回对象）跨代理形态未知 | unix-utils 从未跨代理返回过含函数字段的对象（createRequest 的核心风险）                                | ✅ **spike 通过**：Kotlin 生成含 13 个函数字段的 class（`(config: RequestConfig__1) -> UTSPromise<ResponseAny__1>` 等），代理编码正常。多实例进 v1                                                                                                                                  |
 | Promise reject 载荷跨代理边界                           | 纯对象 type reject 已有 ToastFail 先例；`RequestError` 含可空多字段结构同理                            | ✅ **spike 通过**：RequestError 构造 + reject 编码正常（桩 url 命中即 reject）                                                                                                                                                                                                      |
 | 拦截器回调签名跨代理                                    | 「函数参数直接是函数」的注册形态未验证（ToastOptions 先例为「对象字段内函数」）                        | ✅ **spike 通过**：`useRequestInterceptor(onFulfilled: (config) => RequestConfig)` 与 useResponseInterceptor 双可选回调签名编码正常                                                                                                                                                |
@@ -403,8 +406,14 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 | header 键大小写                                         | 原生可能对 header 键做小写化（hello 示例专项检测佐证）                                                 | 库内不做规范化；playground 实测矩阵记录各端行为，文档标注                                                                                                                                                                                                                          |
 | 微信 / 鸿蒙端 `enableQuic` / `enableChunked` 等参数差异 | 原生能力差异，非库内可抹平                                                                             | 透传 + 文档标注                                                                                                                                                                                                                                                                    |
 | 业务自持 onTask 手工 abort 的 fail 归类                 | 原生 abort 后 fail 的 errCode / errMsg 未在官方文档列明                                                | 归类 `ERR_NATIVE` 文档标注；取消一律走 cancelToken 确定性通道                                                                                                                                                                                                                      |
-| Android dex 编译（Kotlin 编译器层）                     | appResource 仅产出 .kt 源码（UTS→Kotlin 层）；Kotlin 产物中类型名 `__1` 重整（框架符号避让）自洽无害，但 `typealias Request = <T>(...)` 泛型语法未经 Kotlin 编译器验证 | M4 首项：真机 launch / 云打包验证；失败降级入口泛型                                                                                                                                                                                                                                |
-| 编译环境依赖                                            | 鸿蒙需 DevEco Studio 工具链（HBuilderX 运行配置）；iOS 需 macOS；Android dex 需真机或云打包           | M4 按环境逐端补验                                                                                                                                                                                                                                                                  |
+| Android dex 编译（Kotlin 编译器层）                     | appResource 仅产出 .kt 源码（UTS→Kotlin 层）；Kotlin 产物中类型名 `__1` 重整（框架符号避让）自洽无害，但泛型 typealias 等语法未经 Kotlin 编译器验证 | ✅ **M4 首项完成（v0.7）**：Android 云打包（HBuilderX 5.26 cli pack）compileReleaseKotlin 零错误，APK 产出成功——UTS→Kotlin 产物经真实 Kotlin 编译器 + dex 全链路验证通过 |
+| 泛型导出形态（M4 Kotlin 实证，v0.7 定稿）               | UTS `type X = <T>(...)` 函数类型别名转译为 Kotlin `typealias X = <T>(...) -> ...` 为非法语法（Kotlin 泛型参数必须声明在 typealias 名上）；const 绑定的泛型函数字面量转译为匿名 `fun <T>` 被 Kotlin 禁止（Type parameters are prohibited here，首轮云打包 8 处编译错误根因） | ✅ **最终形态**：泛型 API 统一入口具名 `export function apiName<T>(...)`（顶层具名 `fun <T>` 合法）；T 仅静态标注 ResponseResult<T>，响应 data 实际以 any 流转、无运行时实例化需求——同时规避 uts-for-android 泛型传递丢失约束（蒸汽模式无此问题，VDOM 模式才有）；非泛型 API 维持 const 模式 |
+| uni.request 泛型调用的 as 断言（M4 Kotlin 实证）        | M2 验证可用的 `uni.request<RequestSuccess<any>>({...} as RequestOptions<RequestSuccess<any>>)` 形态，as 断言转译后丢失泛型实参 | ✅ **修正**：先声明显式类型的 options 变量（`let options: RequestOptions<RequestSuccess<any>> = {...}`）再传 `uni.request<T>(options)`；注意泛型实参是数据类型 T 而非 RequestSuccess<T> |
+| 函数类型参数逆变（M4 Kotlin 实证）                      | Kotlin 函数类型参数逆变：库内 transform 回调签名放宽为 `(data: any \| null) => any` 后，页面侧自定义回调若仍写 `(data: any)` 即类型不匹配编译报错 | ✅ **已适配**：interface.uts 的 transformRequest / transformResponse 签名统一 `any \| null`，playground 页面回调同步改为 `(data: any \| null)`（GET/HEAD 场景 data 恒为 null，与 3.5 语义边界一致） |
+| `RequestSuccess<any>.data` 的 Kotlin 可空性（M4 实证）  | res.data 在 Kotlin 绑定层为 `Any?`，与库内 ResponseResult.data 非空 any 契约冲突（第二轮云打包仅剩 2 错的根因） | ✅ **已修复**：响应入口用 UTS 官方 `??` 空值合并操作符归一（core.uts `const rawData: any = res.data ?? emptyData`），ResponseResult.data 契约保持非空 any |
+| 回调闭包引用外层 RequestTask 自引用（M4 Kotlin 实证）   | success/fail 回调闭包直接引用外层 `let task`，转译为 Kotlin val 初始化器自引用（编译错误） | ✅ **已修复**：taskHolder 中转——`let taskHolder: RequestTask \| null = null` 先声明，回调内判空后 `taskHolder as RequestTask` 使用，发送后回填 |
+| UTSJSONObject 遍历的 Kotlin 签名（M4 实证）             | `toMap().forEach((value, key) => {})` 双参回调转译后 Kotlin 签名不匹配 | ✅ **已修正**：统一 `UTSJSONObject.keys()` 取键数组 + 索引 for 循环（跨端签名一致）。⚠️ iOS 端 keys() 兼容性官方标注为 x，随 M4 iOS 首测验证 |
+| 编译环境依赖                                            | 鸿蒙需 DevEco Studio 工具链（HBuilderX 运行配置）；iOS 需 macOS；Android dex 需真机或云打包           | ✅ Android dex 已云打包验证（v0.7）；鸿蒙 / iOS 因环境（DevEco / macOS）延后，待环境就绪补验；微信矩阵待开发者工具人工实测、Android 真机矩阵待真机到位                                                                                                                                                                 |
 | onRejected 返回联合类型的运行时判别                     | `ResponseAny \| RequestError \| null` 在 Kotlin 端编译为 `Any?`（产物已验证），web 端 type 别名擦除，instanceof / typeof 均不可用 | ✅ **策略落定（v0.5）**：`as RequestError` 强转探针 + errSubject 契约值判别（`'unix-request'`）。Kotlin 端强转 CCE 由 catch 兜住（UTS catch 编译为 `catch (e: Throwable)`，产物已验证）；web 端 as 擦除后等价字段探测（微信产物已验证，RequestError 编码为真实 class）。**遗留：Swift 端 `as` 强转语义（`as!` 崩溃 vs `as?` 空安全）未验证，M4 iOS 首测项** |
 | 拦截器回调字段含 `any` 参数（transformRequest 等）编码  | 3.11 早期待实测项                                                                                       | ✅ **编译通过（v0.5）**：transformRequest / transformResponse / validateStatus / onTask 回调字段随全量实现三端编译通过；运行时调用行为随 M3/M4 实测                                                                                                                                |
 | 快捷方法 method 注入缺失（M3 运行时发现并修复）         | post/put/patch/del/head/options 快捷方法此前依赖 config.method 透传（快捷 config 通常为 null），实际以默认 GET 发出（服务端 405 暴露）——编译期零告警 | ✅ **已修复（v0.6）**：withUrl / withData 由方法名固定注入 method（config.method 不透传，与 axios 语义一致）；并新增 `RequestQuickConfig`（无 url 的快捷 config 类型），消除「快捷 config 须含必填 url」的类型别扭。三端重编译零 warning + Web 实测 POST/PUT/PATCH/DELETE/HEAD/OPTIONS 全部按真实 method 到达 |
@@ -443,7 +452,7 @@ x 文档未明文编码规则（编码方式 / 嵌套对象 / 各端一致性均
 | M1 设计定稿         | ✅ Q1–Q10 落定（本文档 v0.3）                                                                                                                           | 已完成                         |
 | M2 核心管线 + spike | ✅ 脚手架 + interface.uts 全量签名 + 三项编译 spike（泛型 / RequestInstance 跨代理 / 拦截器回调签名）+ Promise/统一错误桩管线；**Web / 微信 / Android(UTS→Kotlin) 三端编译通过**；鸿蒙 / iOS / Android dex 因环境限制（DevEco / macOS / 真机）延后 M4 | spike 结论落文档 ✅（3.11）    |
 | M3 拦截器与完整体系 | ✅ core 管线全量实现落地（normalize 三级合并 / 双拦截器链状态机 / transform / params 确定性编码 / cancelToken 确定性 abort / 多实例隔离 / 统一错误 / uni.request 接入）；Web(h5 release) / 微信 / Android(UTS→Kotlin) 编译回归零 warning；**playground 15 项测试矩阵扩展完成，Web 真实网络运行验证 15/15 符合预期**（40 条断言日志逐项核对，含 ERR_CONFIG / ERR_PARAM / ERR_TIMEOUT+nativeErrCode=5 / ERR_CANCELED 双场景 / 4xx·5xx 挂 response / 拦截器恢复·换错·放行·eject / 多实例隔离 / getUri 编码 / transform 替换 / ArrayBuffer）；**运行时发现并修复快捷方法 method 注入缺失 bug**（post/put/patch 静默降级 GET），引入 RequestQuickConfig 拆分快捷 config 类型 | 编译 + 运行双验证通过（Web）    |
-| M4 全端验证         | 微信 / Android / 鸿蒙 / iOS 端矩阵实测（3.10 清单，Web 已过项按端复验），补全 3.11 待实测项（Kotlin dex / Swift as 语义 / 鸿蒙编译）                                     | 运行日志验证，无运行时错误     |
+| M4 全端验证         | **进行中**（首项交付 ✅）：**Android dex 云打包验证通过**（三轮迭代：首轮 5 类 Kotlin 根因约 120 错 → 修 7 文件；第二轮剩 2 错 res.data 可空性 → `??` 归一修复；第三轮 compileReleaseKotlin 零错误 APK 产出），**泛型导出形态定稿**（具名 `export function apiName<T>`，3.11 落 7 条 Kotlin 实证）；微信端 15 项矩阵待开发者工具人工实测、Android 真机矩阵待真机到位；鸿蒙 / iOS 因环境限制（DevEco / macOS）延后，限制项随 m4-5 统一回写；Swift as 语义 / iOS keys() 留 iOS 首测 | 运行日志验证，无运行时错误     |
 | M5 文档             | README（中英）+ 使用指南（含拦截器实现重试 / loading / 业务拆包的示例）                                                                                 | 与 unix-utils 文档风格对齐     |
 
 ---
@@ -458,3 +467,5 @@ x 文档未明文编码规则（编码方式 / 嵌套对象 / 各端一致性均
 | v0.4 | 2026-10-10 | **M2 spike 完成**：三项签名风险全部验证通过（泛型导出 / RequestInstance 函数字段对象 / 拦截器函数参数 + RequestError reject 载荷），Q10 方案 A 落定全 API 泛型化；Web / 微信 / Android(UTS→Kotlin) 三端编译通过，鸿蒙 / iOS / Android dex 因环境限制延后 M4（3.11 新增两条环境风险）；工程实测新坑记录至 LESSONS_LEARNED（UTS 插件内部相对 import 三规则 / CLI 编译需有效 appid / launch web --compile 语义 / 微信产物按引用图导出 API） |
 | v0.5 | 2026-10-11 | **core 管线全量实现**（3.8 全分支落地）：normalize（三级合并 / baseURL 拼接 / params 确定性编码 / GET data 并入 query / fail-fast）、请求拦截器链、transformRequest + Content-Type 补设、cancelToken 发送前检查 + 任务注册表确定性 abort、uni.request 接入（RequestOptions 全量透传）+ fail errCode 归类（5/600003·600010/其余 + 取消检测）、validateStatus（4xx/5xx 错误挂 response）、transformResponse、响应拦截器状态机（恢复 / 换错 / 放行 + 异常转 ERR_NATIVE，前段错误按 axios 语义进入错误链）、多实例 InstanceCore 隔离、getUri；**onRejected 联合类型判别策略落定**（as 探针 + errSubject 契约 + catch(Throwable)，Kotlin / 微信产物级验证，Swift 留 M4）；3.9 目录树按实现实况更新；Web(h5 release) / 微信 / Android 三端编译回归零 warning |
 | v0.6 | 2026-10-11 | **M3 运行时验证完成（Web 15/15）+ 快捷方法 API 修正**：playground 扩为 15 项测试矩阵（对应 3.10 清单），Web 真实网络实测 40 条断言日志逐项核对全部符合预期（getUri 编码 / 三级合并 / ERR_CONFIG·PARAM·TIMEOUT·CANCELED / 4xx·5xx 挂 response / 拦截器恢复·换错·放行·eject / 多实例隔离 / transform 替换 / ArrayBuffer）；**发现并修复快捷方法 method 注入缺失 bug**（post/put/patch 静默降级 GET，服务端 405 暴露）——withUrl/withData 由方法名固定注入 method；**新增 `RequestQuickConfig`**（快捷 / 实例快捷方法 config 无 url 字段，RequestQuick / RequestWithData / RequestInstance 快捷方法签名同步改），入口补 `export type` 对外类型转发；3.11 补充运行验证结论与 GET/HEAD transformRequest 收 null 语义边界；经验记录至 LESSONS_LEARNED 18–23 |
+| v0.7 | 2026-10-12 | **M4 首项交付：Android dex 云打包验证通过 + 泛型导出形态定稿**：三轮打包迭代（首轮 5 类 Kotlin 根因约 120 错修 7 文件 → 第二轮剩 res.data 可空性 2 错用 UTS 官方 `??` 归一修复 → 第三轮 compileReleaseKotlin 零错误 APK 产出）；**泛型 API 最终形态**：UTS `type X = <T>(...)` 转译的 Kotlin `typealias X = <T>(...)` 非法 + const 绑定泛型字面量被禁，改入口具名 `export function apiName<T>(...)`（1.5-3 红线修订、3.1 签名块同步泛型形态与 ResponseAny）；3.11 新增 7 条 Kotlin 实证（typealias / const fun\<T\> / uni.request as 断言丢泛型 / 函数参数逆变 / RequestSuccess.data Any? / taskHolder 自引用 / toMap().forEach 签名）与 iOS keys() 兼容性风险标注；M4 里程碑行更新（微信矩阵待人工实测 / 真机矩阵待真机 / 鸿蒙·iOS 延后）；经验记录至 LESSONS_LEARNED 24–32 |
+| v0.8 | 2026-10-12 | **目录结构微调（refactor-1，行为零变化）**：utils/merge.uts 归位配置域 → config/normalize.uts（三级合并与归一化是请求前配置加工，与 configureRequest 同域，utils 仅留 url / error 通用工具）；引用方 core.uts / instance.uts import 同步；3.9 目录树与入口注释按实况更新。验证：h5 / mp-weixin / app-android 三端编译回归零 warning + Web 矩阵冒烟 15/15 通过（45 行断言明细无 FAIL） |

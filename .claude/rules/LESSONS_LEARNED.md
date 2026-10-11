@@ -50,3 +50,20 @@
 21. **GET/HEAD 的 transformRequest 收到 null**：normalize 先把 data 并入 query 并置 null，transform 在 normalize 之后执行——自定义 transformRequest 内对 data 取属性会 TypeError（本轮由 method bug 下游暴露：post 被降级为 GET 后 data 进 query → transform 收 null → ERR_NATIVE「transformRequest 执行异常」）。设计语义：transform 作用于发送快照，GET/HEAD 场景 data 恒为 null，transform 内需判空。
 22. **入口 export type 同目录转发可行**：`export type { ... } from './interface.uts'`（与入口同目录，非跨级）编译通过，消费方 `import type { RequestConfig } from '@/uni_modules/ux-request'` 正常解析——对外类型须经入口转发，仅 import 不导出会让消费方 TS 检查报「not exported」。
 23. **RequestQuickConfig 与 RequestConfig 拆分**：快捷方法 config 不含 url（url 由方法参数提供），避免调用方为满足 RequestConfig.url 必填传占位值——uts-proxy 对必填字段生成非空强转（NPE 红线），不能用「url 改可选」解决，只能拆类型。
+
+## 2026-10-11~12 M4 Android 云打包（Kotlin 编译器层 / dex 全链路验证通过）
+
+### 泛型导出与 Kotlin 编译器约束
+
+24. **UTS 泛型函数类型别名转译为非法 Kotlin**：`type X = <T>(...)` 转译为 `typealias X = <T>(...) -> ...`，而 Kotlin 泛型参数必须声明在 typealias 名上（`typealias X<T> = ...`），转译器不做此变换——**M2 spike 通过的只是 UTS→Kotlin 转译层，Kotlin 编译器层才暴露**。appResource 产物级验证不能替代真实编译（compileReleaseKotlin）。
+25. **泛型 API 最终形态：入口具名 `export function apiName<T>(...)`**：const 绑定的泛型函数字面量转译为 Kotlin 匿名 `fun <T>` 被 Kotlin 禁止（Type parameters are prohibited here，首轮云打包 8 处编译错误根因）；顶层具名 `fun <T>` 合法。T 仅静态标注 `ResponseResult<T>`（消费方 TS 视图），响应 data 实际以 Any 流转、无运行时实例化需求——该形态同时规避 uts-for-android 泛型传递丢失约束（蒸汽模式无此问题，VDOM 模式才有）。非泛型 API 不受影响，仍走官方 const 模式。
+26. **`uni.request` 泛型调用的 as 断言丢泛型实参**：M2 验证可用的 `uni.request<T>({...} as RequestOptions<RequestSuccess<any>>)` 在 Kotlin 转译后 as 断言丢失泛型实参——改为先声明显式类型变量（`let options: RequestOptions<RequestSuccess<any>> = {...}`）再传 `uni.request<T>(options)`；泛型实参是数据类型 T 而非 RequestSuccess\<T\>。
+27. **Kotlin 函数类型参数逆变**：库内回调签名放宽为 `(data: any | null) => any` 后，页面侧自定义回调若仍写 `(data: any)` 即编译报错——回调签名变更必须库内 / 页面全链路同步。
+28. **`RequestSuccess<any>.data` 在 Kotlin 绑定层为 `Any?`**：与库内 ResponseResult.data 非空 any 契约冲突（第二轮云打包仅剩 2 错的根因）——响应入口用 UTS 官方 `??` 空值合并操作符归一（`const rawData: any = res.data ?? emptyData`），契约保持非空。
+29. **回调闭包引用外层 RequestTask 转译为 val 初始化器自引用**：success/fail 闭包直接引用外层 `let task` 编译错误——taskHolder 中转：`let taskHolder: RequestTask | null = null` 先声明，回调内判空后 `taskHolder as RequestTask` 使用，发送后回填。
+30. **`toMap().forEach((value, key) => {})` 双参回调 Kotlin 签名不匹配**：UTSJSONObject 遍历统一用 `keys()` 取键数组 + 索引 for 循环（跨端签名一致）；iOS 端 keys() 兼容性官方标注为 x，留 iOS 首测验证。
+
+### 云打包运维（HBuilderX 5.26 / Windows）
+
+31. **pack 必须 `--ignoreWarnings true`**：不传会因 x86 CPU 架构提示 + 首次打包计费确认交互中断命令行流程（CI 场景无人工确认通道）。
+32. **云打包 CLI 日志中继可能断连**：本地日志 0 字节 / 进程零 CPU 零网络 ≠ 云端任务失败，用官方 `cli pack status --project <路径>` 查真实状态；`cli logcat pack`（5.11+）可拉云端打包日志、`cli pack cancel`（5.14+）可取消。晚高峰排队约 65 分钟（队列 #214 实测），打包阶段本身约 1 分钟。

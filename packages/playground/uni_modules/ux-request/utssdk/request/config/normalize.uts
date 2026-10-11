@@ -1,6 +1,9 @@
 /**
  * 配置三级合并 + 归一化（normalize 层，设计 3.6 / 3.8）
  *
+ * 归属配置域（config/）：三级合并与归一化都是「请求发出前的配置加工」，
+ * 与 configureRequest（config/index.uts）同域，不属于通用工具（utils/）。
+ *
  * 合并顺序：内置默认 < 实例 defaults < 请求级 RequestConfig
  * - 标量字段（method / timeout）请求级有值即覆盖，否则逐级回退内置默认
  * - header 浅合并（默认 header 键被请求级同名键覆盖），写入全新对象，不改业务入参
@@ -12,8 +15,8 @@
  */
 import type { RequestConfig, RequestDefaults, RequestMethod } from '../../interface.uts'
 import type { NormalizeResult } from '../types'
-import { buildRequestError } from './error'
-import { isAbsoluteUrl, encodeParams, appendQuery, joinUrl } from './url'
+import { buildRequestError } from '../utils/error'
+import { isAbsoluteUrl, encodeParams, appendQuery, joinUrl } from '../utils/url'
 import { BUILTIN_METHOD, BUILTIN_TIMEOUT, BUILTIN_VALIDATE_STATUS } from '../constants/defaults'
 
 /**

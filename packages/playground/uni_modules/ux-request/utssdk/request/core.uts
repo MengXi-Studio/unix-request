@@ -20,7 +20,7 @@
  */
 import type { RequestConfig, RequestError, RequestErrorCode, ResponseResult, ResponseAny } from '../interface.uts'
 import type { InstanceCore, ChainOutcome } from './types'
-import { normalizeRequest } from './utils/merge'
+import { normalizeRequest } from './config/normalize'
 import { buildRequestError, isRequestErrorValue } from './utils/error'
 import { applyTransformRequest, applyTransformResponse } from './transform'
 import { registerCancelTask, unregisterCancelTask } from './cancel'
