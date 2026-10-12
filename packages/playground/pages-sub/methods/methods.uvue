@@ -23,6 +23,11 @@
 </template>
 
 <script setup lang="uts">
+	// 页面声明宏：编译期由 @meng-xi/unix-router/vite-plugin 剥离，驱动 pages.json 与路由表生成
+	defineUniPage({
+		title: '请求方法',
+		name: 'methods'
+	})
 	import { request } from '@/uni_modules/ux-request'
 	import type { RequestError, RequestMethod } from '@/uni_modules/ux-request'
 	import { describeErr } from '@/common/test-utils.uts'

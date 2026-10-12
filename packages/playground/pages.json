@@ -5,66 +5,73 @@
 			"style": {
 				"navigationBarTitleText": "unix-request"
 			}
-		},
+		}
+	],
+	"subPackages": [
 		{
-			"path": "pages/url-params/url-params",
-			"style": {
-				"navigationBarTitleText": "URL 与参数"
-			}
-		},
-		{
-			"path": "pages/error-basic/error-basic",
-			"style": {
-				"navigationBarTitleText": "参数与配置错误"
-			}
-		},
-		{
-			"path": "pages/methods/methods",
-			"style": {
-				"navigationBarTitleText": "请求方法"
-			}
-		},
-		{
-			"path": "pages/body-header/body-header",
-			"style": {
-				"navigationBarTitleText": "请求体与请求头"
-			}
-		},
-		{
-			"path": "pages/status-error/status-error",
-			"style": {
-				"navigationBarTitleText": "状态码与网络错误"
-			}
-		},
-		{
-			"path": "pages/cancel/cancel",
-			"style": {
-				"navigationBarTitleText": "取消请求"
-			}
-		},
-		{
-			"path": "pages/transform/transform",
-			"style": {
-				"navigationBarTitleText": "数据转换"
-			}
-		},
-		{
-			"path": "pages/interceptors/interceptors",
-			"style": {
-				"navigationBarTitleText": "拦截器"
-			}
-		},
-		{
-			"path": "pages/instances/instances",
-			"style": {
-				"navigationBarTitleText": "多实例与全局配置"
-			}
-		},
-		{
-			"path": "pages/arraybuffer/arraybuffer",
-			"style": {
-				"navigationBarTitleText": "二进制响应"
-			}
+			"root": "pages-sub",
+			"pages": [
+				{
+					"path": "arraybuffer/arraybuffer",
+					"style": {
+						"navigationBarTitleText": "二进制响应"
+					}
+				},
+				{
+					"path": "body-header/body-header",
+					"style": {
+						"navigationBarTitleText": "请求体与请求头"
+					}
+				},
+				{
+					"path": "cancel/cancel",
+					"style": {
+						"navigationBarTitleText": "取消请求"
+					}
+				},
+				{
+					"path": "error-basic/error-basic",
+					"style": {
+						"navigationBarTitleText": "参数与配置错误"
+					}
+				},
+				{
+					"path": "instances/instances",
+					"style": {
+						"navigationBarTitleText": "多实例与全局配置"
+					}
+				},
+				{
+					"path": "interceptors/interceptors",
+					"style": {
+						"navigationBarTitleText": "拦截器"
+					}
+				},
+				{
+					"path": "methods/methods",
+					"style": {
+						"navigationBarTitleText": "请求方法"
+					}
+				},
+				{
+					"path": "status-error/status-error",
+					"style": {
+						"navigationBarTitleText": "状态码与网络错误"
+					}
+				},
+				{
+					"path": "transform/transform",
+					"style": {
+						"navigationBarTitleText": "数据转换"
+					}
+				},
+				{
+					"path": "url-params/url-params",
+					"style": {
+						"navigationBarTitleText": "URL 与参数"
+					}
+				}
+			]
 		}
 	],
 	"globalStyle": {

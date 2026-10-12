@@ -1,0 +1,64 @@
+/**
+ * 本文件由 @meng-xi/unix-router/vite-plugin 自动生成，请勿整体手改。
+ * preserveRouteChanges 已开启：重新生成时保留你追加的自定义字段与整条自定义路由；
+ * 页面级声明请使用页面内的 defineUniPage 宏或 <route-config> 块。
+ */
+import type { RouteConfig, RouteMeta } from '@/uni_modules/ux-router/utssdk/index.uts'
+
+export const routes: RouteConfig[] = [
+	{
+		path: 'pages/index/index',
+		name: 'home',
+		meta: { title: 'unix-request' },
+	},
+	{
+		path: 'pages-sub/arraybuffer/arraybuffer',
+		name: 'arraybuffer',
+		meta: { title: '二进制响应' },
+	},
+	{
+		path: 'pages-sub/body-header/body-header',
+		name: 'body-header',
+		meta: { title: '请求体与请求头' },
+	},
+	{
+		path: 'pages-sub/cancel/cancel',
+		name: 'cancel',
+		meta: { title: '取消请求' },
+	},
+	{
+		path: 'pages-sub/error-basic/error-basic',
+		name: 'error-basic',
+		meta: { title: '参数与配置错误' },
+	},
+	{
+		path: 'pages-sub/instances/instances',
+		name: 'instances',
+		meta: { title: '多实例与全局配置' },
+	},
+	{
+		path: 'pages-sub/interceptors/interceptors',
+		name: 'interceptors',
+		meta: { title: '拦截器' },
+	},
+	{
+		path: 'pages-sub/methods/methods',
+		name: 'methods',
+		meta: { title: '请求方法' },
+	},
+	{
+		path: 'pages-sub/status-error/status-error',
+		name: 'status-error',
+		meta: { title: '状态码与网络错误' },
+	},
+	{
+		path: 'pages-sub/transform/transform',
+		name: 'transform',
+		meta: { title: '数据转换' },
+	},
+	{
+		path: 'pages-sub/url-params/url-params',
+		name: 'url-params',
+		meta: { title: 'URL 与参数' },
+	},
+]

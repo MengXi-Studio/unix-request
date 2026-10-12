@@ -5,6 +5,11 @@
 	"private": true,
 	"description": "为 uni-app x 提供对标 Axios 功能体系的网络请求库",
 	"packageManager": "pnpm@10.31.0",
+	"pnpm": {
+		"overrides": {
+			"rollup": "4.14.3"
+		}
+	},
 	"workspaces": [
 		"packages/*"
 	],

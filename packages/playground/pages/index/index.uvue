@@ -8,101 +8,100 @@
 
 			<text class="group-title">URL / 配置</text>
 			<view class="cell-group">
-				<view class="cell" @click="go('url-params')">
+				<RouterLink to="pages-sub/url-params/url-params" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">URL 与参数</text>
 						<text class="cell-desc">getUri 确定性编码 / params 与 GET data 并入 query</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
-				<view class="cell" @click="go('error-basic')">
+				</RouterLink>
+				<RouterLink to="pages-sub/error-basic/error-basic" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">参数与配置错误</text>
 						<text class="cell-desc">ERR_CONFIG / ERR_PARAM 发送前 fail-fast</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
+				</RouterLink>
 			</view>
 
 			<text class="group-title">请求发送</text>
 			<view class="cell-group">
-				<view class="cell" @click="go('methods')">
+				<RouterLink to="pages-sub/methods/methods" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">请求方法</text>
 						<text class="cell-desc">七种 method 顺序实测（GET/POST/PUT/PATCH/DELETE/OPTIONS/HEAD）</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
-				<view class="cell" @click="go('body-header')">
+				</RouterLink>
+				<RouterLink to="pages-sub/body-header/body-header" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">请求体与请求头</text>
 						<text class="cell-desc">POST 透传与 Content-Type 补设 / header 三级合并</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
+				</RouterLink>
 			</view>
 
 			<text class="group-title">错误体系</text>
 			<view class="cell-group">
-				<view class="cell" @click="go('status-error')">
+				<RouterLink to="pages-sub/status-error/status-error" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">状态码与网络错误</text>
 						<text class="cell-desc">4xx/5xx validateStatus / 超时与不可路由</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
-				<view class="cell" @click="go('cancel')">
+				</RouterLink>
+				<RouterLink to="pages-sub/cancel/cancel" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">取消请求</text>
 						<text class="cell-desc">发送前取消 / 飞行中确定性 abort</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
+				</RouterLink>
 			</view>
 
 			<text class="group-title">进阶能力</text>
 			<view class="cell-group">
-				<view class="cell" @click="go('transform')">
+				<RouterLink to="pages-sub/transform/transform" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">数据转换</text>
 						<text class="cell-desc">transformRequest / transformResponse 替换内置</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
-				<view class="cell" @click="go('interceptors')">
+				</RouterLink>
+				<RouterLink to="pages-sub/interceptors/interceptors" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">拦截器</text>
 						<text class="cell-desc">注入 / 变换 / 恢复 / 换错 / 放行 / eject</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
-				<view class="cell" @click="go('instances')">
+				</RouterLink>
+				<RouterLink to="pages-sub/instances/instances" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">多实例与全局配置</text>
 						<text class="cell-desc">createRequest 隔离 / configureRequest 全局生效</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
-				<view class="cell" @click="go('arraybuffer')">
+				</RouterLink>
+				<RouterLink to="pages-sub/arraybuffer/arraybuffer" class="cell">
 					<view class="cell-main">
 						<text class="cell-title">二进制响应</text>
 						<text class="cell-desc">responseType: arraybuffer</text>
 					</view>
 					<text class="cell-arrow">›</text>
-				</view>
+				</RouterLink>
 			</view>
 		</view>
 	</scroll-view>
 </template>
 
 <script setup lang="uts">
-	import { useRouter } from '@/uni_modules/ux-router/utssdk/index.uts'
-
-	const router = useRouter()
-
-	function go(name: string): void {
-		router.push({ name: name })
-	}
+	// 页面声明宏：编译期由 @meng-xi/unix-router/vite-plugin 剥离，驱动 pages.json 与路由表生成
+	defineUniPage({
+		title: 'unix-request',
+		name: 'home'
+	})
+	import { RouterLink } from '@/uni_modules/ux-router/utssdk/index.uts'
 </script>
 
 <style>

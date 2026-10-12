@@ -1,6 +1,6 @@
 import App from './App.uvue'
 import { createSSRApp } from 'vue'
-import { router } from './router.config.uts'
+import { router } from './router/index.uts'
 
 export function createApp() {
 	const app = createSSRApp(App)

@@ -1,0 +1,5 @@
+// 应用路由配置：createRouter 实例（路由表由 vite 插件从页面 defineUniPage 宏自动生成，routes.gen.uts 勿手改）
+import { createRouter } from '@/uni_modules/ux-router/utssdk/index.uts'
+import { routes } from '../routes.gen.uts'
+
+export const router = createRouter({ routes, strict: true })
