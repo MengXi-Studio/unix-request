@@ -108,7 +108,7 @@ function buildInstance(core: InstanceCore): RequestInstance {
 		useRequestInterceptor: (onFulfilled: (config: RequestConfig) => RequestConfig): number => {
 			return useRequestInterceptorImpl(core, onFulfilled)
 		},
-		useResponseInterceptor: (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null): number => {
+		useResponseInterceptor: (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => any | null) | null): number => {
 			return useResponseInterceptorImpl(core, onFulfilled, onRejected)
 		},
 		ejectInterceptor: (id: number): void => {

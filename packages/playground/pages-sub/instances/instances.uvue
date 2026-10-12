@@ -78,18 +78,9 @@
 		})
 	}
 
-	/* ===== 14 configureRequest 全局生效：相对路径走全局 baseURL + 全局 header ===== */
-	function t14Global(): void {
-		get<any>('/api/http/method/get', null).then((res) => {
-			log('14', '相对路径成功 statusCode=' + res.statusCode.toString() + ' x-global=' + headerVal(res.config, 'x-global') + '（期望 global-default）')
-			restoreDefaults()
-		}).catch((err) => {
-			catchLog('14', err as RequestError)
-			restoreDefaults()
-		})
-	}
-
-	/** 复位全局默认（与 App.uvue onLaunch 配置一致），避免影响其他页面 */
+	/** 复位全局默认（与 App.uvue onLaunch 配置一致），避免影响其他页面
+	 * 注意：须定义在 t14Global 之前——script setup 顶层函数转译为
+	 * "fun gen_x + val x = ::gen_x" 局部对，val 声明前引用即 Kotlin Unresolved（M4 云打包实证） */
 	function restoreDefaults(): void {
 		const globalHeader: UTSJSONObject = {}
 		globalHeader['x-global'] = 'global-default'
@@ -98,6 +89,17 @@
 			timeout: 15000,
 			header: globalHeader,
 			validateStatus: null
+		})
+	}
+
+	/* ===== 14 configureRequest 全局生效：相对路径走全局 baseURL + 全局 header ===== */
+	function t14Global(): void {
+		get<any>('/api/http/method/get', null).then((res) => {
+			log('14', '相对路径成功 statusCode=' + res.statusCode.toString() + ' x-global=' + headerVal(res.config, 'x-global') + '（期望 global-default）')
+			restoreDefaults()
+		}).catch((err) => {
+			catchLog('14', err as RequestError)
+			restoreDefaults()
 		})
 	}
 </script>

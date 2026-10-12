@@ -1,88 +1,92 @@
 {
-    "name" : "unix-request-playground",
-    "appid" : "__UNI__1927897",
-    "description" : "@meng-xi/unix-request 示例项目",
-    "versionName" : "0.1.0",
-    "versionCode" : "001",
-    "uni-app-x" : {
-        "styleIsolationVersion" : "2",
-        "vapor" : true,
-        "vapor-render-target" : "bytecode"
-    },
-    "quickapp" : {},
-    "mp-weixin" : {
-        "appid" : null,
-        "setting" : {
-            "urlCheck" : true,
-            "es6" : true,
-            "postcss" : true,
-            "minified" : true
-        },
-        "usingComponents" : true
-    },
-    "mp-alipay" : {
-        "usingComponents" : true
-    },
-    "mp-baidu" : {
-        "usingComponents" : true
-    },
-    "mp-toutiao" : {
-        "usingComponents" : true
-    },
-    "uniStatistics" : {
-        "enable" : false
-    },
-    "vueVersion" : "3",
-    "app" : {
-        "distribute" : {
-            "icons" : {
-                "android" : {
-                    "hdpi" : "",
-                    "xhdpi" : "",
-                    "xxhdpi" : "",
-                    "xxxhdpi" : ""
-                }
-            }
-        }
-    },
-    "app-android" : {
-        "distribute" : {
-            "modules" : {},
-            "icons" : {
-                "hdpi" : "",
-                "xhdpi" : "",
-                "xxhdpi" : "",
-                "xxxhdpi" : ""
-            },
-            "splashScreens" : {
-                "default" : {
-                    "xhdpi" : "",
-                    "xxhdpi" : "",
-                    "xxxhdpi" : ""
-                }
-            },
-            "abiFilters" : [ "armeabi-v7a", "arm64-v8a", "x86_64" ]
-        }
-    },
-    "app-ios" : {
-        "distribute" : {
-            "modules" : {},
-            "icons" : {},
-            "splashScreens" : {}
-        }
-    },
-    "web" : {
-        "router" : {
-            "mode" : "history"
-        },
-        "title" : "@meng-xi/unix-request",
-        "devServer" : {
-            "https" : false
-        },
-        "optimization" : {
-            "treeShaking" : {
-                "enable" : true
-            }
-        }
-    }
+	"name": "unix-request-playground",
+	"appid": "__UNI__1927897",
+	"description": "@meng-xi/unix-request 示例项目",
+	"versionName": "0.1.0",
+	"versionCode": "001",
+	"uni-app-x": {
+		"styleIsolationVersion": "2",
+		"vapor": true,
+		"vapor-render-target": "bytecode"
+	},
+	"quickapp": {},
+	"mp-weixin": {
+		"appid": null,
+		"setting": {
+			"urlCheck": true,
+			"es6": true,
+			"postcss": true,
+			"minified": true
+		},
+		"usingComponents": true
+	},
+	"mp-alipay": {
+		"usingComponents": true
+	},
+	"mp-baidu": {
+		"usingComponents": true
+	},
+	"mp-toutiao": {
+		"usingComponents": true
+	},
+	"uniStatistics": {
+		"enable": false
+	},
+	"vueVersion": "3",
+	"app": {
+		"distribute": {
+			"icons": {
+				"android": {
+					"hdpi": "",
+					"xhdpi": "",
+					"xxhdpi": "",
+					"xxxhdpi": ""
+				}
+			}
+		}
+	},
+	"app-android": {
+		"distribute": {
+			"modules": {},
+			"icons": {
+				"hdpi": "",
+				"xhdpi": "",
+				"xxhdpi": "",
+				"xxxhdpi": ""
+			},
+			"splashScreens": {
+				"default": {
+					"xhdpi": "",
+					"xxhdpi": "",
+					"xxxhdpi": ""
+				}
+			},
+			"abiFilters": [
+				"armeabi-v7a",
+				"arm64-v8a",
+				"x86_64"
+			]
+		}
+	},
+	"app-ios": {
+		"distribute": {
+			"modules": {},
+			"icons": {},
+			"splashScreens": {}
+		}
+	},
+	"web": {
+		"router": {
+			"mode": "history"
+		},
+		"title": "@meng-xi/unix-request",
+		"devServer": {
+			"https": false
+		},
+		"optimization": {
+			"treeShaking": {
+				"enable": true
+			}
+		}
+	}
 }

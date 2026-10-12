@@ -51,20 +51,6 @@
 		log(tag, 'reject ' + describeErr(err))
 	}
 
-	/* ===== 12 拦截器语义：注入 / 变换 / 恢复 / 换错 / 放行 / eject（顺序执行避免相互污染） ===== */
-	function t12Interceptors(): void {
-		log('12', '开始')
-		t12a(() => {
-			t12b(() => {
-				t12c(() => {
-					t12d(() => {
-						log('12', '全链完成')
-					})
-				})
-			})
-		})
-	}
-
 	/** 12a 请求拦截注入 header + 响应 onFulfilled 变换 + eject 后失效 */
 	function t12a(done: () => void): void {
 		const rid = useRequestInterceptor((config) => {
@@ -99,13 +85,15 @@
 
 	/** 12b onRejected 恢复：404 → 返回兜底 ResponseResult 转 resolve */
 	function t12b(done: () => void): void {
-		const recId = useResponseInterceptor(null, (err) => {
+		const recId = useResponseInterceptor(null, (err: RequestError): any | null => {
 			if (err.code == 'ERR_BAD_REQUEST') {
 				log('12b', 'onRejected 收到 ' + err.code + '，执行恢复')
+				// ResponseResult.header 为非空 any（Kotlin Any），兜底构造须给空对象不可给 null
+				const emptyHeader: UTSJSONObject = {}
 				const fallback: ResponseAny = {
 					data: 'recovered-from-404',
 					statusCode: 599,
-					header: null,
+					header: emptyHeader,
 					cookies: [] as Array<string>,
 					config: err.config
 				}
@@ -126,7 +114,7 @@
 
 	/** 12c onRejected 换错：404 → ERR_CANCELED */
 	function t12c(done: () => void): void {
-		const mapId = useResponseInterceptor(null, (err) => {
+		const mapId = useResponseInterceptor(null, (err: RequestError): any | null => {
 			const converted: RequestError = {
 				code: 'ERR_CANCELED',
 				errSubject: 'unix-request',
@@ -151,7 +139,7 @@
 
 	/** 12d onRejected 放行：返回 null 携带原错误继续 reject */
 	function t12d(done: () => void): void {
-		const passId = useResponseInterceptor(null, (err) => {
+		const passId = useResponseInterceptor(null, (err: RequestError): any | null => {
 			log('12d', 'onRejected 收到 ' + err.code + '，放行')
 			return null
 		})
@@ -163,6 +151,22 @@
 			catchLog('12d 放行', err as RequestError)
 			ejectInterceptor(passId)
 			done()
+		})
+	}
+
+	/* ===== 12 拦截器语义：注入 / 变换 / 恢复 / 换错 / 放行 / eject（顺序执行避免相互污染） =====
+	 * 注意：须定义在被调的 t12a~t12d 之后——script setup 顶层函数转译为
+	 * "fun gen_x + val x = ::gen_x" 局部对，val 声明前引用即 Kotlin Unresolved（M4 云打包实证） */
+	function t12Interceptors(): void {
+		log('12', '开始')
+		t12a(() => {
+			t12b(() => {
+				t12c(() => {
+					t12d(() => {
+						log('12', '全链完成')
+					})
+				})
+			})
 		})
 	}
 </script>

@@ -195,7 +195,7 @@ export type RequestInstance = {
 	getUri: (config: RequestConfig | null) => string
 	setConfig: (defaults: RequestDefaults) => void
 	useRequestInterceptor: (onFulfilled: (config: RequestConfig) => RequestConfig) => number
-	useResponseInterceptor: (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null) => number
+	useResponseInterceptor: (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => any | null) | null) => number
 	ejectInterceptor: (id: number) => void
 }
 
@@ -222,7 +222,7 @@ export type RequestGetUri = (config: RequestConfig | null) => string
 export type UseRequestInterceptor = (onFulfilled: (config: RequestConfig) => RequestConfig) => number
 
 /** 注册响应拦截器（onRejected 返回 ResponseResult 恢复 / RequestError 换错 / null 放行） */
-export type UseResponseInterceptor = (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null) => number
+export type UseResponseInterceptor = (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => any | null) | null) => number
 
 /** 移除拦截器 */
 export type EjectInterceptor = (id: number) => void

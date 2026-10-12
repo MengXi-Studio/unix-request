@@ -141,7 +141,7 @@ export const useRequestInterceptor: UseRequestInterceptor = function (onFulfille
 }
 
 /** 注册响应拦截器（默认实例） */
-export const useResponseInterceptor: UseResponseInterceptor = function (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null): number {
+export const useResponseInterceptor: UseResponseInterceptor = function (onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => any | null) | null): number {
 	return useResponseInterceptorImpl(defaultCore, onFulfilled, onRejected)
 }
 

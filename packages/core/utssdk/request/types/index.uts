@@ -19,7 +19,7 @@ export type RequestInterceptorEntry = {
 export type ResponseInterceptorEntry = {
 	id: number
 	onFulfilled: ((res: ResponseAny) => ResponseAny) | null
-	onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null
+	onRejected: ((err: RequestError) => any | null) | null
 }
 
 /**

@@ -29,10 +29,10 @@ export function useRequestInterceptorImpl(core: InstanceCore, onFulfilled: (conf
  * 注册响应拦截器
  * @param core 目标实例核心
  * @param onFulfilled 变换响应（null 表示不处理成功路径）
- * @param onRejected 错误处理（返回 ResponseResult 恢复 / RequestError 换错 / null 放行）
+ * @param onRejected 错误处理（返回 ResponseResult 恢复 / RequestError 换错 / null 放行；返回类型用 any | null——对象联合在函数类型返回位置被 HBuilderX 转译为 Unit 期望，页面回调 return 值即编译错，M4 云打包实证）
  * @returns 拦截器 id（供 ejectInterceptor）
  */
-export function useResponseInterceptorImpl(core: InstanceCore, onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => ResponseAny | RequestError | null) | null): number {
+export function useResponseInterceptorImpl(core: InstanceCore, onFulfilled: ((res: ResponseAny) => ResponseAny) | null, onRejected: ((err: RequestError) => any | null) | null): number {
 	const id = nextId
 	nextId++
 	const entry: ResponseInterceptorEntry = { id: id, onFulfilled: onFulfilled, onRejected: onRejected }
