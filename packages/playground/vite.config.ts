@@ -4,7 +4,6 @@ import { routeGen } from './uni_modules/ux-router/plugins/index.mjs'
 
 export default defineConfig({
 	plugins: [
-		uni(),
 		routeGen({
 			verbose: true,
 			pages: {
@@ -18,6 +17,8 @@ export default defineConfig({
 				importFrom: '@/uni_modules/ux-router/utssdk/index.uts',
 				dts: 'route-name.gen.d.ts'
 			}
-		})
+		}),
+
+		uni()
 	]
 })

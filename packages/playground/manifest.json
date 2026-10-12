@@ -11,7 +11,7 @@
 	},
 	"quickapp": {},
 	"mp-weixin": {
-		"appid": null,
+		"appid": "",
 		"setting": {
 			"urlCheck": true,
 			"es6": true,
@@ -61,11 +61,7 @@
 					"xxxhdpi": ""
 				}
 			},
-			"abiFilters": [
-				"armeabi-v7a",
-				"arm64-v8a",
-				"x86_64"
-			]
+			"abiFilters": ["armeabi-v7a", "arm64-v8a", "x86_64"]
 		}
 	},
 	"app-ios": {
