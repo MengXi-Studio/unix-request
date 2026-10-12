@@ -141,3 +141,8 @@
     t12 恢复/换错/放行三条 404 路径各报一条，response.data 回退为 "Not Found" 使 responseBody 断言正常）。另有 Chrome 对非 2xx XHR 的固定红字
     `GET ... 404 (Not Found)`（任何网页无法抑制，与 uni 无关）。库层面无需也无法消除（解析在 uni.request 运行时内部，改 dataType 会改变所有响应 data 类型，不值得）。dev 环境实测被 vapor web
     dev 限制挡死（页面 setup 即报错、交互失效），用 build + serve --single 链路验证。
+
+## 2026-10-12 docs 包（VitePress）构建踩坑
+
+43. **VitePress 把每篇 md 编译为 Vue 模板，正文/标题/frontmatter details 中裸露的泛型尖括号（如 `request<T>`、`<reason>`、`ResponseResult<T>`）会让 `[vite:vue]` 报 `Element is missing end tag` 直接构建失败**：`<T>` 等被当成
+    未闭合 HTML 起始标签解析；反引号 code span 内则安全。报错行号有偏移（报 39 行实为 28 行内容），不能按行号精确定位，要按文件全文排查。对策：标题、frontmatter、prose 中的泛型一律加反引号；排查手段为先剥离 ``` 围栏与行内代码再正则匹配 `<[A-Za-z]`（node 临时脚本一次性扫全量 md，避免 build 一轮一报）。另：新增 workspace 包后 `pnpm install` 须 `--no-frozen-lockfile` 且 sandbox 对 E: 盘临时文件拒写需 dangerouslyDisableSandbox。

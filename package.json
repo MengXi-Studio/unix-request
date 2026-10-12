@@ -14,6 +14,8 @@
 		"packages/*"
 	],
 	"scripts": {
+		"dev:docs": "pnpm --filter @meng-xi/unix-request-docs dev",
+		"build:docs": "pnpm --filter @meng-xi/unix-request-docs build",
 		"sync:uni-modules": "node scripts/sync-uni-modules.mjs",
 		"sync:uni-modules:check": "node scripts/sync-uni-modules.mjs --check",
 		"release": "bumpp",

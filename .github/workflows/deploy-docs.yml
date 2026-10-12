@@ -49,7 +49,7 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      # 构建文档（base 路径默认 /unix-utils/，见 .vitepress/config/index.ts）
+      # 构建文档（base 路径默认 /unix-request/，见 .vitepress/config/shared.ts）
       - name: Build docs
         run: pnpm run build:docs
 
