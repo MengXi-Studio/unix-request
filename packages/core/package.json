@@ -9,9 +9,7 @@
 		"meng-xi",
 		"unix-request",
 		"uni-app-x",
-		"request",
-		"http",
-		"axios"
+		"request"
 	],
 	"main": "utssdk/index.uts",
 	"module": "utssdk/index.uts",

@@ -4,14 +4,14 @@
 	"version": "0.1.0",
 	"description": "为 uni-app x 提供功能完善的网络请求库",
 	"keywords": [
-        "@meng-xi/unix-request",
-        "ux-request",
-        "request",
-        "http",
-        "请求"
-    ],
+		"@meng-xi/unix-request",
+		"ux-request",
+		"request",
+		"http",
+		"请求"
+	],
 	"repository": "https://github.com/MengXi-Studio/unix-request",
-  "engines": {
+	"engines": {
 		"HBuilderX": "^3.6.8",
 		"uni-app": "",
 		"uni-app-x": "^3.8.5"

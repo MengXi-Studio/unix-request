@@ -1,7 +1,9 @@
 {
 	"name": "@meng-xi/unix-request-playground",
+	"type": "module",
 	"version": "0.1.0",
 	"private": true,
+	"description": "为 uni-app x 提供功能完善的网络请求库的示例工程",
 	"scripts": {
 		"dev:web": "uni",
 		"build:web": "uni build",
