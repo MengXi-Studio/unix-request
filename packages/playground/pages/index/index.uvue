@@ -3,7 +3,7 @@
 		<view class="container">
 			<view class="banner">
 				<text class="banner-title">@meng-xi/unix-request</text>
-				<text class="banner-sub">Axios 风格跨端请求库 · 功能验证示例</text>
+				<text class="banner-sub">为 uni-app x 提供功能完善的网络请求库 · 功能验证示例</text>
 			</view>
 
 			<text class="group-title">URL / 配置</text>
