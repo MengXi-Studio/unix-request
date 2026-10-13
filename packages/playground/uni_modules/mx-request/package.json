@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"description": "为 uni-app x 提供功能完善的网络请求库",
 	"keywords": [
-		"@meng-xi/unix-request",
+		"unix-request",
 		"mx-request",
 		"request",
 		"http",
