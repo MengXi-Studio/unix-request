@@ -6,12 +6,12 @@
  *   node scripts/sync-uni-modules.mjs --check   # 仅校验一致性（CI / precommit）
  *
  * 原理：packages/core 本身就是标准 uni_modules 插件目录（utssdk/ 结构），
- * 直接复制为 playground/uni_modules/ux-request；HBuilderX 编译只扫描
+ * 直接复制为 playground/uni_modules/mx-request；HBuilderX 编译只扫描
  * 工程 uni_modules/ 目录，node_modules 内的 UTS 插件不被识别。
  *
- * 注意：插件目录名必须为 ux-request（npm 包名 @meng-xi/unix-request 的
+ * 注意：插件目录名必须为 mx-request（npm 包名 @meng-xi/unix-request 的
  * uni_modules id 约定），因此 dest/package.json 为 playground 侧
- * 手工维护（id: ux-request），同步时保留、不参与复制与校验。
+ * 手工维护（id: mx-request），同步时保留、不参与复制与校验。
  */
 import { cpSync, existsSync, rmSync, readdirSync, statSync, readFileSync } from 'node:fs'
 import { join, dirname, resolve } from 'node:path'
@@ -20,13 +20,13 @@ import { createHash } from 'node:crypto'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const src = join(root, 'packages/core')
-const dest = join(root, 'packages/playground/uni_modules/ux-request')
+const dest = join(root, 'packages/playground/uni_modules/mx-request')
 
 /** 插件目录只需要这些内容（README-en 面向 npm 仓库浏览场景，playground 不需要） */
 const INCLUDE = ['utssdk', 'README.md', 'license.md']
 
 /** 同步时需在目标目录保留的手工维护文件（不复制、不删除、校验豁免）：
- *  - package.json：HBuilderX 插件发布要求 id 为 ux-request，与 core（npm 包）元数据不同
+ *  - package.json：HBuilderX 插件发布要求 id 为 mx-request，与 core（npm 包）元数据不同
  *  - changelog.md：core 无此文件，仅 playground 侧维护 */
 const KEEP = ['package.json', 'changelog.md']
 
@@ -66,13 +66,7 @@ if (check) {
 	 *  目标侧全量校验（可发现白名单外的多余文件），仅豁免手工维护的 KEEP 文件 */
 	const complete = existsSync(dest) && KEEP.every(name => existsSync(join(dest, name)))
 	const same = complete && hashTree(src, true) === hashTree(dest, false, KEEP)
-	console.log(
-		same
-			? '[sync] playground 插件与 core 一致'
-			: complete
-				? '[sync] playground 插件与 core 不一致（需执行 pnpm sync:uni-modules）'
-				: `[sync] playground 插件缺失或缺少手工维护文件（${KEEP.join(', ')}）`
-	)
+	console.log(same ? '[sync] playground 插件与 core 一致' : complete ? '[sync] playground 插件与 core 不一致（需执行 pnpm sync:uni-modules）' : `[sync] playground 插件缺失或缺少手工维护文件（${KEEP.join(', ')}）`)
 	process.exit(same ? 0 : 1)
 }
 
@@ -91,4 +85,4 @@ cpSync(src, dest, {
 		return INCLUDE.includes(rel.split(/[\\/]/)[0])
 	}
 })
-console.log('[sync] 已同步 packages/core → packages/playground/uni_modules/ux-request（package.json 保留手工版本）')
+console.log('[sync] 已同步 packages/core → packages/playground/uni_modules/mx-request（package.json 保留手工版本）')

@@ -1,11 +1,11 @@
 {
-	"id": "ux-request",
-	"displayName": "ux-request 为 uni-app x 提供功能完善的网络请求库",
+	"id": "mx-request",
+	"displayName": "mx-request 为 uni-app x 提供功能完善的网络请求库",
 	"version": "0.1.0",
 	"description": "为 uni-app x 提供功能完善的网络请求库",
 	"keywords": [
 		"@meng-xi/unix-request",
-		"ux-request",
+		"mx-request",
 		"request",
 		"http",
 		"请求"
