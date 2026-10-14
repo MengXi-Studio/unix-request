@@ -5,7 +5,7 @@
 ## 注册与移除
 
 ```uts
-import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/ux-request'
+import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/mx-request'
 
 const reqId = useRequestInterceptor((config) => {
 	// 请求拦截
@@ -97,7 +97,7 @@ useResponseInterceptor(null, (err: RequestError): any | null => {
 ### 路径一：恢复（错误兜底转成功）
 
 ```uts
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 const recId = useResponseInterceptor(null, (err: RequestError): any | null => {
 	if (err.code == 'ERR_BAD_REQUEST') {
@@ -119,7 +119,7 @@ const recId = useResponseInterceptor(null, (err: RequestError): any | null => {
 ### 路径二：换错（错误转换）
 
 ```uts
-import type { RequestError } from '@/uni_modules/ux-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 const mapId = useResponseInterceptor(null, (err: RequestError): any | null => {
 	const converted: RequestError = {
@@ -162,8 +162,8 @@ useResponseInterceptor(null, (err: RequestError): any | null => {
 ## 实战配方：统一注入 token + 统一错误上报
 
 ```uts
-import { useRequestInterceptor, useResponseInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { useRequestInterceptor, useResponseInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 useRequestInterceptor((config) => {
 	const h = config.header

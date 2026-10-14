@@ -3,8 +3,8 @@
 `request<T>(config: RequestConfig): Promise<ResponseResult<T>>` 发起一次 HTTP 请求，是库的主入口（挂载在默认实例上）。成功 resolve 统一响应结构 [ResponseResult](./type-response)，失败 reject 统一错误结构 [RequestError](./type-request-error)，调用侧只需面对一个 Promise。
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<{ id: number, name: string }>({
 	url: '/api/users/1',
@@ -63,7 +63,7 @@ request<{ id: number, name: string }>({
 ### 成功（POST + params + header）
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['Authorization'] = 'Bearer <token>'
@@ -83,8 +83,8 @@ request<UTSJSONObject>({
 ### 失败（HTTP 4xx 携带响应原文）
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<UTSJSONObject>({ url: '/api/missing' }).then((res) => {
 	// 4xx 默认不会走到这里（validateStatus 未通过）

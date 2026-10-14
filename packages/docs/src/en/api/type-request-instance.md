@@ -53,8 +53,8 @@ The top-level APIs (`request<T>` / the seven shortcut methods) provide generics;
 ## Examples
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
-import type { RequestInstance, RequestError } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
+import type { RequestInstance, RequestError } from '@/uni_modules/mx-request'
 
 const api: RequestInstance = createRequest({
 	baseURL: 'https://api.example.com',

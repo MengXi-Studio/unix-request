@@ -8,7 +8,7 @@ It is recommended to set the default instance's global defaults (baseURL / timeo
 
 ```uts
 // inside App.uvue <script setup lang="uts">
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 onLaunch(() => {
 	const header: UTSJSONObject = {}
@@ -27,8 +27,8 @@ onLaunch(() => {
 ## Step 2: Make a Request
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', null)
 	.then((res) => {
@@ -70,7 +70,7 @@ get<UserInfo>('/api/user/1', {
 ## POST Requests
 
 ```uts
-import { post } from '@/uni_modules/ux-request'
+import { post } from '@/uni_modules/mx-request'
 
 post<any>('/api/user/create', { name: 'mengxi', role: 'admin' } as UTSJSONObject, null)
 	.then((res) => {
@@ -86,8 +86,8 @@ post<any>('/api/user/create', { name: 'mengxi', role: 'admin' } as UTSJSONObject
 Putting the three steps together in one page (same structure as the playground, runs as-is):
 
 ```uts
-import { get, configureRequest } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get, configureRequest } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 configureRequest({
 	baseURL: 'https://request.dcloud.net.cn',

@@ -1,5 +1,5 @@
 <script setup lang="uts">
-	import { configureRequest } from '@/uni_modules/ux-request'
+	import { configureRequest } from '@/uni_modules/mx-request'
 	import { HOST } from '@/common/test-utils.uts'
 
 	onLaunch(() => {

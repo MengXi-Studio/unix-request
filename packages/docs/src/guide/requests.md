@@ -5,8 +5,8 @@ unix-request 的对外请求入口分两层：`request<T>(config)` 主入口（�
 ## 主入口 `request<T>`
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/http/method/get', // 必填；相对路径自动拼接 baseURL
@@ -39,7 +39,7 @@ request<any>({
 | `options<T>` | `(url, config \| null)` | OPTIONS |
 
 ```uts
-import { get, post, del } from '@/uni_modules/ux-request'
+import { get, post, del } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', null)
 post<any>('/api/http/method/post', { name: 'mengxi' } as UTSJSONObject, null)
@@ -56,7 +56,7 @@ del<any>('/api/http/method/delete', null)
 任何请求级字段都可以覆盖实例默认，且只影响当前这一次请求：
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 // 全局 baseURL 指向业务服务，这一次请求打到另一台机器、单独放宽超时
 get<any>('https://other.example.com/api/slow', {

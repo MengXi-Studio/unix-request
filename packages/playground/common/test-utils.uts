@@ -1,4 +1,4 @@
-import type { RequestConfig, RequestError } from '@/uni_modules/ux-request'
+import type { RequestConfig, RequestError } from '@/uni_modules/mx-request'
 
 /** 官方测试服务器（hello uni-app x 同源） */
 export const HOST = 'https://request.dcloud.net.cn'

@@ -3,7 +3,7 @@
 The seven shortcut methods are method aliases of [request()](./request) (mirroring the axios method aliases), mounted on the default instance, with return values identical to `request()`: success resolves [ResponseResult](./type-response), failure rejects [RequestError](./type-request-error).
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<UTSJSONObject>('/api/users/1', null).then((res) => {
 	console.log(res.data)
@@ -43,7 +43,7 @@ The `method` field in `config` is **not passed through** — the method is decid
 ### get / post
 
 ```uts
-import { get, post } from '@/uni_modules/ux-request'
+import { get, post } from '@/uni_modules/mx-request'
 
 // GET: params go in config
 get<Array<UTSJSONObject>>('/api/users', {
@@ -61,7 +61,7 @@ post<UTSJSONObject>('/api/users', { 'name': 'MengXi' }, null).then((res) => {
 ### put / patch / del
 
 ```uts
-import { put, patch, del } from '@/uni_modules/ux-request'
+import { put, patch, del } from '@/uni_modules/mx-request'
 
 put<UTSJSONObject>('/api/users/1', { 'name': 'new-name' }, null)
 patch<UTSJSONObject>('/api/users/1', { 'remark': 'x' }, null)
@@ -71,7 +71,7 @@ del<UTSJSONObject>('/api/users/1', null)
 ### head / options
 
 ```uts
-import { head, options } from '@/uni_modules/ux-request'
+import { head, options } from '@/uni_modules/mx-request'
 
 head<UTSJSONObject>('/api/health', null).then((res) => {
 	console.log(res.statusCode, res.header)

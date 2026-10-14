@@ -53,8 +53,8 @@ The interceptor `onRejected` return-value detection also relies on this contract
 ## Examples
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<UTSJSONObject>({ url: '/api/missing' }).catch((err) => {
 	const e = err as RequestError

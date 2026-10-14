@@ -28,8 +28,8 @@
 		title: '取消请求',
 		name: 'cancel'
 	})
-	import { request, createCancelSource } from '@/uni_modules/ux-request'
-	import type { RequestError } from '@/uni_modules/ux-request'
+	import { request, createCancelSource } from '@/uni_modules/mx-request'
+	import type { RequestError } from '@/uni_modules/mx-request'
 	import { describeErr } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

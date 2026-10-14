@@ -3,7 +3,7 @@
 `getUri(config: RequestConfig | null): string` builds the full URL offline from the given configuration — **no network call, no interceptors** (mounted on the default instance and using its defaults; for the instance version see `getUri` in [Request Instance](./request-instance)).
 
 ```uts
-import { getUri, configureRequest } from '@/uni_modules/ux-request'
+import { getUri, configureRequest } from '@/uni_modules/mx-request'
 
 configureRequest({ baseURL: 'https://api.example.com', timeout: 60000, header: null, validateStatus: null })
 
@@ -41,7 +41,7 @@ getUri({ url: '/users', params: { 'page': 1 } })
 ## Examples
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 // params encoding (space → %20)
 getUri({ url: '/search', params: { 'q': 'uni app', 'page': 2 } })

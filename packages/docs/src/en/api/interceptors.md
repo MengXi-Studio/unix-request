@@ -3,7 +3,7 @@
 The default instance exposes three functions for interceptor registration and removal: `useRequestInterceptor` / `useResponseInterceptor` / `ejectInterceptor`. Interceptors can be registered multiple times, run in order, and are removable; v1 only supports synchronous callbacks. Instances have same-named methods (see [Request Instance](./request-instance)) with registries isolated per instance.
 
 ```uts
-import { useRequestInterceptor } from '@/uni_modules/ux-request'
+import { useRequestInterceptor } from '@/uni_modules/mx-request'
 
 const id = useRequestInterceptor((config) => {
 	const h = config.header
@@ -69,8 +69,8 @@ Both registration functions return a `number` interceptor id (request/response s
 ### Request interceptor injecting a token + response interceptor swapping errors
 
 ```uts
-import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 // Inject the auth header
 const rid1 = useRequestInterceptor((config) => {
@@ -97,8 +97,8 @@ const rid2 = useResponseInterceptor(null, (err) => {
 ### Error recovery (fallback)
 
 ```uts
-import { useResponseInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { useResponseInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 useResponseInterceptor(null, (err): any | null => {
 	if (err.code == 'ERR_NETWORK') {

@@ -3,7 +3,7 @@
 The `RequestInstance` object returned by `createRequest()`, structurally identical to the default instance (top-level APIs): request methods, URL building, interceptor registration, and default-config updates are all there, but defaults and interceptor registries are independent per instance. For the type definition see [RequestInstance](./type-request-instance).
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const api = createRequest(null)
 
@@ -50,7 +50,7 @@ api.get('/users/1', null).then((res) => {
 ### setConfig updates instance defaults
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const api = createRequest({ baseURL: 'https://dev.example.com', timeout: 10000, header: null, validateStatus: null })
 
@@ -63,8 +63,8 @@ api.setConfig({ baseURL: 'https://api.example.com', timeout: 15000, header: head
 ### Instance interceptor + eject
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 const api = createRequest({ baseURL: 'https://api.example.com', timeout: 10000, header: null, validateStatus: null })
 

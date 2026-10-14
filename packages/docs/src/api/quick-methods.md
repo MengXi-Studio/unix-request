@@ -3,7 +3,7 @@
 七个快捷方法是 [request()](./request) 的方法别名（对标 axios 方法别名），挂载在默认实例上，返回值与 `request()` 一致：成功 resolve [ResponseResult](./type-response)，失败 reject [RequestError](./type-request-error)。
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<UTSJSONObject>('/api/users/1', null).then((res) => {
 	console.log(res.data)
@@ -43,7 +43,7 @@ get<UTSJSONObject>('/api/users/1', null).then((res) => {
 ### get / post
 
 ```uts
-import { get, post } from '@/uni_modules/ux-request'
+import { get, post } from '@/uni_modules/mx-request'
 
 // GET：params 走 config
 get<Array<UTSJSONObject>>('/api/users', {
@@ -61,7 +61,7 @@ post<UTSJSONObject>('/api/users', { 'name': 'MengXi' }, null).then((res) => {
 ### put / patch / del
 
 ```uts
-import { put, patch, del } from '@/uni_modules/ux-request'
+import { put, patch, del } from '@/uni_modules/mx-request'
 
 put<UTSJSONObject>('/api/users/1', { 'name': 'new-name' }, null)
 patch<UTSJSONObject>('/api/users/1', { 'remark': 'x' }, null)
@@ -71,7 +71,7 @@ del<UTSJSONObject>('/api/users/1', null)
 ### head / options
 
 ```uts
-import { head, options } from '@/uni_modules/ux-request'
+import { head, options } from '@/uni_modules/mx-request'
 
 head<UTSJSONObject>('/api/health', null).then((res) => {
 	console.log(res.statusCode, res.header)

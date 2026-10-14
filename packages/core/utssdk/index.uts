@@ -39,7 +39,7 @@ import type {
 
 /**
  * 对外类型转发（同目录 interface.uts，非跨级 re-export）：
- * 消费方 import type { RequestConfig } from '@/uni_modules/ux-request'
+ * 消费方 import type { RequestConfig } from '@/uni_modules/mx-request'
  * 须经本入口解析（uts-proxy V1 的类型转发只影响消费方 TS 视图，
  * API 编码生成仍只看上方内联 export const 声明）
  */

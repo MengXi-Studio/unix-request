@@ -29,8 +29,8 @@
 		title: '参数与配置错误',
 		name: 'error-basic'
 	})
-	import { request, createRequest } from '@/uni_modules/ux-request'
-	import type { RequestError } from '@/uni_modules/ux-request'
+	import { request, createRequest } from '@/uni_modules/mx-request'
+	import type { RequestError } from '@/uni_modules/mx-request'
 	import { describeErr } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

@@ -78,7 +78,7 @@ A shortcut method's method is **fixed by its name** (`post()` always sends POST)
 ## Examples
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['Accept-Language'] = 'zh-CN'

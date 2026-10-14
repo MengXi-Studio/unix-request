@@ -53,8 +53,8 @@ UTS 对象类型不支持 call signature，`instance(config)` 直调形态不可
 ## 示例
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
-import type { RequestInstance, RequestError } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
+import type { RequestInstance, RequestError } from '@/uni_modules/mx-request'
 
 const api: RequestInstance = createRequest({
 	baseURL: 'https://api.example.com',

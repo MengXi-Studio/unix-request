@@ -31,7 +31,7 @@
 所有可选字段的一致语义：**不传或显式传 `null`，表示使用实例默认**（实例默认也没有则回退内置默认）。显式传 `null` 与不传等价，方便业务在「动态配置」场景统一写法：
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/list',
@@ -53,7 +53,7 @@ request<any>({
 | `header` | 无 | **浅合并**：实例默认键被请求级同名键覆盖，其余键保留 |
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 // 允许 3xx 也算成功（覆盖默认 2xx 校验）
 request<any>({
@@ -83,7 +83,7 @@ request<any>({
 `onTask` 在请求发出后回调原生 `RequestTask`，用于本库未封装的高级场景（chunked 监听、响应头监听等）：
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/stream',

@@ -340,7 +340,7 @@ resolve ResponseResult（含 config 引用）
 ### 3.9 目录结构（对齐 unix-utils v0.8 惯例：职责目录 + index.uts 桶文件）
 
 ```
-packages/core/                       # = uni_modules/ux-request 插件本体（Q1：ux-request）
+packages/core/                       # = uni_modules/mx-request 插件本体（Q1：mx-request）
 ├── package.json                     # @meng-xi/unix-request（main: utssdk/index.uts）
 ├── README.md / README-en.md / license.md
 ├── utssdk/
@@ -383,7 +383,7 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 ### 3.10 工程与验证
 
 - **仓库脚手架**（对齐 unix-utils）：`package.json`（pnpm workspace）/ `.editorconfig` / `.prettierrc` / `.npmrc` / `.gitignore` / `tsconfig.json` / `bump.config.ts` / `scripts/sync-uni-modules.mjs`（复制 core →
-  playground `uni_modules/ux-request`，dest package.json 手工维护）/ `docs/design/request.md`（本文档）；
+  playground `uni_modules/mx-request`，dest package.json 手工维护）/ `docs/design/request.md`（本文档）；
 - **playground**：标准 uni-app x 工程，测试页矩阵覆盖——三级配置合并与 baseURL 拼接（绝对 / 相对 / 斜杠容错 / 缺失 ERR_CONFIG）、8 种 method、params 与 GET
   query 编码、header 合并与键大小写实测、Content-Type 补设、原生 UTSJSONObject data 序列化实测、transformRequest/Response 替换内置、responseType=ArrayBuffer、超时（ERR_TIMEOUT +
   nativeErrCode=5）、cancelToken 取消（ERR_CANCELED）、4xx/5xx（ERR_BAD_REQUEST/RESPONSE +
@@ -427,7 +427,7 @@ packages/core/                       # = uni_modules/ux-request 插件本体（Q
 
 | #   | 裁决                                                                                                                                                                                                                           |
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Q1  | ✅ npm `@meng-xi/unix-request`，插件 id `ux-request`                                                                                                                                                                           |
+| Q1  | ✅ npm `@meng-xi/unix-request`，插件 id `mx-request`                                                                                                                                                                           |
 | Q2  | ✅ `createRequest` 为主目标，M2 与泛型一并 spike；失败则 v1 仅默认实例，多实例列 v2                                                                                                                                            |
 | Q3  | ✅ 错误 code 对标 AxiosError 字符串字面量联合，原生明细由 `nativeErrCode` 携带                                                                                                                                                 |
 | Q4  | ✅ 拦截器 axios 语义全对标，v1 仅同步                                                                                                                                                                                          |

@@ -3,7 +3,7 @@
 `createRequest()` 返回的 `RequestInstance` 实例对象，与默认实例（顶层 API）同构：请求方法、URL 构建、拦截器注册、默认配置修改一应俱全，但 defaults 与拦截器注册表各自独立。类型定义见 [RequestInstance](./type-request-instance)。
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const api = createRequest(null)
 
@@ -50,7 +50,7 @@ api.get('/users/1', null).then((res) => {
 ### setConfig 更新实例默认
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const api = createRequest({ baseURL: 'https://dev.example.com', timeout: 10000, header: null, validateStatus: null })
 
@@ -63,8 +63,8 @@ api.setConfig({ baseURL: 'https://api.example.com', timeout: 15000, header: head
 ### 实例拦截器 + eject
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 const api = createRequest({ baseURL: 'https://api.example.com', timeout: 10000, header: null, validateStatus: null })
 

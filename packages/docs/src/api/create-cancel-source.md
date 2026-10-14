@@ -3,8 +3,8 @@
 `createCancelSource(): CancelSource` 创建取消源（与 axios `CancelToken.source()` 同心智）：把 `token` 挂到 [RequestConfig](./type-request-config) 的 `cancelToken` 字段，调用 `cancel(reason)` 即取消该 token 关联的全部进行中请求。
 
 ```uts
-import { request, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 const source = createCancelSource()
 
@@ -45,8 +45,8 @@ source.cancel('页面卸载')
 ### 发送前已取消 + 飞行中取消
 
 ```uts
-import { request, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 // 场景一：发送前已取消 → 不发网络，立即 reject ERR_CANCELED
 const pre = createCancelSource()
@@ -70,7 +70,7 @@ setTimeout(() => {
 ### 竞态防护（只保留最后一次搜索）
 
 ```uts
-import { get, createCancelSource } from '@/uni_modules/ux-request'
+import { get, createCancelSource } from '@/uni_modules/mx-request'
 
 let searchSource = createCancelSource()
 

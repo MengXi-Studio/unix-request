@@ -1,6 +1,6 @@
 # 介绍
 
-`@meng-xi/unix-request`（uni_modules 插件 ID：`ux-request`）是梦曦工作室 MengXi-Studio 为 **uni-app x** 提供的网络请求库，API 心智全面对标 **Axios**，核心语言为 **UTS**（`.uts`），底层唯一依赖官方 `uni.request`——不重造网络栈，只做编排层。
+`@meng-xi/unix-request`（uni_modules 插件 ID：`mx-request`）是梦曦工作室 MengXi-Studio 为 **uni-app x** 提供的网络请求库，API 心智全面对标 **Axios**，核心语言为 **UTS**（`.uts`），底层唯一依赖官方 `uni.request`——不重造网络栈，只做编排层。
 
 ## 为什么需要它
 
@@ -42,7 +42,7 @@ unix-request 的 API 心智全面对标 **Axios**，把这些痛点一次性收�
 
 ## 工程形态
 
-- **标准 uni_modules UTS 插件**：npm 包名 `@meng-xi/unix-request`，uni_modules 插件 ID `ux-request`，`utssdk/` 官方目录结构 + `interface.uts` 对外声明；
+- **标准 uni_modules UTS 插件**：npm 包名 `@meng-xi/unix-request`，uni_modules 插件 ID `mx-request`，`utssdk/` 官方目录结构 + `interface.uts` 对外声明；
 - **UTS 源分发**：由 uni-app x 编译链按目标平台现场编译（Web / 小程序 → JS，Android → Kotlin，iOS → Swift），无运行时桥接开销；
 - **纯编排层**：`uni.request` 全端统一，插件内无平台目录，一套实现覆盖五端；
 - **playground 自检工程**：仓库内 `packages/playground` 含 15 个功能自检页，覆盖本文档全部能力点。

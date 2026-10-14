@@ -3,7 +3,7 @@
 `getUri(config: RequestConfig | null): string` 根据配置离线构建完整 URL，**不发网络、不跑拦截器**（挂载在默认实例上，走其 defaults；实例版见 [Request 实例](./request-instance) 的 `getUri`）。
 
 ```uts
-import { getUri, configureRequest } from '@/uni_modules/ux-request'
+import { getUri, configureRequest } from '@/uni_modules/mx-request'
 
 configureRequest({ baseURL: 'https://api.example.com', timeout: 60000, header: null, validateStatus: null })
 
@@ -41,7 +41,7 @@ getUri({ url: '/users', params: { 'page': 1 } })
 ## 示例
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 // params 编码（空格 → %20）
 getUri({ url: '/search', params: { 'q': 'uni app', 'page': 2 } })

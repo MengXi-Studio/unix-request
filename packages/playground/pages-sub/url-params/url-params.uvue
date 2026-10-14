@@ -29,8 +29,8 @@
 		title: 'URL 与参数',
 		name: 'url-params'
 	})
-	import { get, getUri } from '@/uni_modules/ux-request'
-	import type { RequestError } from '@/uni_modules/ux-request'
+	import { get, getUri } from '@/uni_modules/mx-request'
+	import type { RequestError } from '@/uni_modules/mx-request'
 	import { describeErr } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

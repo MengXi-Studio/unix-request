@@ -5,7 +5,7 @@ Interceptors are unix-request's core capability mirroring Axios: process config 
 ## Registering and Removing
 
 ```uts
-import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/ux-request'
+import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/mx-request'
 
 const reqId = useRequestInterceptor((config) => {
 	// request interception
@@ -97,7 +97,7 @@ useResponseInterceptor(null, (err: RequestError): any | null => {
 ### Path 1: Recover (Turn an Error into a Fallback Success)
 
 ```uts
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 const recId = useResponseInterceptor(null, (err: RequestError): any | null => {
 	if (err.code == 'ERR_BAD_REQUEST') {
@@ -119,7 +119,7 @@ const recId = useResponseInterceptor(null, (err: RequestError): any | null => {
 ### Path 2: Replace the Error
 
 ```uts
-import type { RequestError } from '@/uni_modules/ux-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 const mapId = useResponseInterceptor(null, (err: RequestError): any | null => {
 	const converted: RequestError = {
@@ -162,8 +162,8 @@ So "global error reporting" only needs one `onRejected` registration to cover fa
 ## Practical Recipe: Unified Token Injection + Unified Error Reporting
 
 ```uts
-import { useRequestInterceptor, useResponseInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { useRequestInterceptor, useResponseInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 useRequestInterceptor((config) => {
 	const h = config.header

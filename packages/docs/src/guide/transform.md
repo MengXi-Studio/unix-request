@@ -20,7 +20,7 @@
 提供即替换内置，适合统一加工请求体（附加时间戳、改形态等）：
 
 ```uts
-import { post } from '@/uni_modules/ux-request'
+import { post } from '@/uni_modules/mx-request'
 
 post<any>('/api/user/create', { name: 'mengxi' } as UTSJSONObject, {
 	transformRequest: (data: any | null): any => {
@@ -59,7 +59,7 @@ transformRequest: (data: any | null): any => {
 内置为原样透传，提供即替换。典型用途是「业务拆包」——假设服务端统一返回 `{ code, msg, result }`：
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/user/1',

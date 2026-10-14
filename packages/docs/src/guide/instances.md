@@ -7,7 +7,7 @@ unix-request 提供两类实例：**默认实例**（模块级单例，顶层 AP
 直接从包入口导入的 `request` / `get` / `post` 等全部绑定在默认实例上。全局默认可用 `configureRequest` 一次性设置：
 
 ```uts
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['x-global'] = 'global-default'
@@ -29,7 +29,7 @@ configureRequest({
 ## createRequest：多实例
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const instA = createRequest({ baseURL: 'https://a.example.com', timeout: 10000, header: null, validateStatus: null })
 const instB = createRequest({ baseURL: 'https://b.example.com', timeout: 20000, header: null, validateStatus: null })

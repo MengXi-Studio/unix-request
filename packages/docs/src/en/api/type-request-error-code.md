@@ -42,8 +42,8 @@ The library's `code` is the stable basis for business branching; `nativeErrCode`
 ## Examples
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<UTSJSONObject>({ url: '/api/data' }).catch((err) => {
 	const e = err as RequestError

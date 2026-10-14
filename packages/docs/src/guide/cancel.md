@@ -5,8 +5,8 @@ unix-request 通过 `createCancelSource()` 提供取消能力（与 Axios 的 `C
 ## 基本用法
 
 ```uts
-import { request, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 const source = createCancelSource()
 

@@ -3,7 +3,7 @@
 默认实例的拦截器注册与移除共三个函数：`useRequestInterceptor` / `useResponseInterceptor` / `ejectInterceptor`。拦截器多枚、有序、可移除，v1 仅支持同步回调。实例上另有同名方法（见 [Request 实例](./request-instance)），注册表随实例隔离。
 
 ```uts
-import { useRequestInterceptor } from '@/uni_modules/ux-request'
+import { useRequestInterceptor } from '@/uni_modules/mx-request'
 
 const id = useRequestInterceptor((config) => {
 	const h = config.header
@@ -69,8 +69,8 @@ useResponseInterceptor(
 ### 请求拦截器注入 token + 响应拦截器统一换错
 
 ```uts
-import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 // 注入鉴权 header
 const rid1 = useRequestInterceptor((config) => {
@@ -97,8 +97,8 @@ const rid2 = useResponseInterceptor(null, (err) => {
 ### 错误恢复（降级兜底）
 
 ```uts
-import { useResponseInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { useResponseInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 useResponseInterceptor(null, (err): any | null => {
 	if (err.code == 'ERR_NETWORK') {

@@ -3,8 +3,8 @@
 `createCancelSource(): CancelSource` creates a cancel source (same mental model as axios `CancelToken.source()`): attach the `token` to the `cancelToken` field of [RequestConfig](./type-request-config), then call `cancel(reason)` to cancel all in-flight requests associated with that token.
 
 ```uts
-import { request, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 const source = createCancelSource()
 
@@ -45,8 +45,8 @@ Cancellation is implemented deterministically inside the library (actively calli
 ### Canceled before send + canceled in flight
 
 ```uts
-import { request, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 // Case 1: canceled before send → no network call, rejects ERR_CANCELED immediately
 const pre = createCancelSource()
@@ -70,7 +70,7 @@ setTimeout(() => {
 ### Race protection (keep only the latest search)
 
 ```uts
-import { get, createCancelSource } from '@/uni_modules/ux-request'
+import { get, createCancelSource } from '@/uni_modules/mx-request'
 
 let searchSource = createCancelSource()
 

@@ -13,8 +13,8 @@
 | `config` | `RequestConfig \| null` | 发起该请求的**最终合并配置**（发送快照，见[请求流程原理](./request-flow)） |
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestConfig } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestConfig } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', null).then((res) => {
 	console.log('statusCode=' + res.statusCode.toString())
@@ -48,7 +48,7 @@ get<UserInfo>('/api/user/1', null).then((res) => {
 实例方法与拦截器中的响应类型为 `ResponseAny`（即 `ResponseResult<any>`），业务侧按需断言：
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const inst = createRequest(null)
 inst.get('/api/user/1', null).then((res) => {

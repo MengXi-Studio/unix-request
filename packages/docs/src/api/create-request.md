@@ -3,7 +3,7 @@
 `createRequest(defaults: RequestDefaults | null): RequestInstance` 创建一个独立的请求实例（对标 `axios.create`）。实例拥有自己的 [RequestDefaults](./type-request-defaults) 与拦截器注册表，与默认实例完全隔离。
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const api = createRequest({
 	baseURL: 'https://api.example.com',
@@ -46,7 +46,7 @@ api.get<UTSJSONObject>('/users/1', null).then((res) => {
 ### 双服务端隔离
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 // 业务 API：长超时 + 鉴权 header
 const authHeader: UTSJSONObject = {}
@@ -69,7 +69,7 @@ oss.get<UTSJSONObject>('/bucket/a.png', null)
 ### 实例级拦截器隔离
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const a = createRequest({ baseURL: 'https://a.test', timeout: 10000, header: null, validateStatus: null })
 const b = createRequest({ baseURL: 'https://b.test', timeout: 10000, header: null, validateStatus: null })

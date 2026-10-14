@@ -46,7 +46,7 @@ api.get('/users/1', null).then((res) => {
 ## 示例
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<{ id: number, name: string }>({ url: '/api/users/1' }).then((res) => {
 	console.log(res.statusCode)      // 200

@@ -1,6 +1,6 @@
 # Introduction
 
-`@meng-xi/unix-request` (uni_modules plugin ID: `ux-request`) is a network request library for **uni-app x** by MengXi-Studio. Its API model fully mirrors **Axios**, it is written in **UTS** (`.uts`), and it depends solely on the official `uni.request` underneath — it does not reinvent the network stack, it only builds the orchestration layer.
+`@meng-xi/unix-request` (uni_modules plugin ID: `mx-request`) is a network request library for **uni-app x** by MengXi-Studio. Its API model fully mirrors **Axios**, it is written in **UTS** (`.uts`), and it depends solely on the official `uni.request` underneath — it does not reinvent the network stack, it only builds the orchestration layer.
 
 ## Why You Need It
 
@@ -42,7 +42,7 @@ Knowing the boundary matters as much as knowing the capabilities. The following 
 
 ## Project Shape
 
-- **Standard uni_modules UTS plugin**: npm package name `@meng-xi/unix-request`, uni_modules plugin ID `ux-request`, the official `utssdk/` directory structure + `interface.uts` public declarations;
+- **Standard uni_modules UTS plugin**: npm package name `@meng-xi/unix-request`, uni_modules plugin ID `mx-request`, the official `utssdk/` directory structure + `interface.uts` public declarations;
 - **UTS source distribution**: compiled on-site per target platform by the uni-app x toolchain (Web / Mini Program → JS, Android → Kotlin, iOS → Swift), with no runtime bridging overhead;
 - **Pure orchestration layer**: `uni.request` is unified across all platforms; the plugin contains no platform directories; one implementation covers all five platforms;
 - **playground self-check project**: `packages/playground` in the repository contains 15 capability self-check pages covering every capability documented here.

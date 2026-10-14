@@ -28,8 +28,8 @@
 		title: '拦截器',
 		name: 'interceptors'
 	})
-	import { request, get, useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/ux-request'
-	import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+	import { request, get, useRequestInterceptor, useResponseInterceptor, ejectInterceptor } from '@/uni_modules/mx-request'
+	import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 	import { describeErr, headerVal } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

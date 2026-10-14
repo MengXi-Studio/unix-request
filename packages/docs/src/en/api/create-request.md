@@ -3,7 +3,7 @@
 `createRequest(defaults: RequestDefaults | null): RequestInstance` creates an independent request instance (mirroring `axios.create`). The instance has its own [RequestDefaults](./type-request-defaults) and interceptor registry, fully isolated from the default instance.
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const api = createRequest({
 	baseURL: 'https://api.example.com',
@@ -46,7 +46,7 @@ Each instance maintains its own request/response interceptor registries: an inte
 ### Two backends, isolated
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 // Business API: long timeout + auth header
 const authHeader: UTSJSONObject = {}
@@ -69,7 +69,7 @@ oss.get<UTSJSONObject>('/bucket/a.png', null)
 ### Instance-level interceptor isolation
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const a = createRequest({ baseURL: 'https://a.test', timeout: 10000, header: null, validateStatus: null })
 const b = createRequest({ baseURL: 'https://b.test', timeout: 10000, header: null, validateStatus: null })

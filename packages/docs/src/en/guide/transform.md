@@ -20,7 +20,7 @@ Request body serialization (JSON.stringify etc.) relies entirely on the native a
 Providing it replaces the built-in — good for uniformly massaging request bodies (adding timestamps, reshaping, etc.):
 
 ```uts
-import { post } from '@/uni_modules/ux-request'
+import { post } from '@/uni_modules/mx-request'
 
 post<any>('/api/user/create', { name: 'mengxi' } as UTSJSONObject, {
 	transformRequest: (data: any | null): any => {
@@ -59,7 +59,7 @@ transformRequest: (data: any | null): any => {
 The built-in is pass-through; providing it replaces that. A typical use is "business unwrapping" — say the server uniformly returns `{ code, msg, result }`:
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/user/1',

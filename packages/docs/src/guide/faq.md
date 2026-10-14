@@ -47,8 +47,8 @@ request<any>({ url: '/api/list' })
 所有类型都从包入口 `import type` 引入，消费方的 TS 视图由 uts-proxy 自动生成，HBuilderX 对 `.uvue` / `.uts` 文件的补全即基于此：
 
 ```uts
-import { request, get } from '@/uni_modules/ux-request'
-import type { RequestConfig, RequestError, ResponseResult } from '@/uni_modules/ux-request'
+import { request, get } from '@/uni_modules/mx-request'
+import type { RequestConfig, RequestError, ResponseResult } from '@/uni_modules/mx-request'
 ```
 
 泛型 T 的静态标注能力见[响应结构](./response-schema)。
@@ -58,8 +58,8 @@ import type { RequestConfig, RequestError, ResponseResult } from '@/uni_modules/
 token 是一次性的：`cancel` 之后挂载该 token 的新请求会在发送前检查被直接 `ERR_CANCELED`。要「取消旧的、再发新的」（如搜索输入变更后重新搜索），每次都重新创建取消源：
 
 ```uts
-import { get, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 let current = createCancelSource()
 

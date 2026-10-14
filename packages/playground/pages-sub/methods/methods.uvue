@@ -28,8 +28,8 @@
 		title: '请求方法',
 		name: 'methods'
 	})
-	import { request } from '@/uni_modules/ux-request'
-	import type { RequestError, RequestMethod } from '@/uni_modules/ux-request'
+	import { request } from '@/uni_modules/mx-request'
+	import type { RequestError, RequestMethod } from '@/uni_modules/mx-request'
 	import { describeErr } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

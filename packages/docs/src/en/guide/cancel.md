@@ -5,8 +5,8 @@ unix-request provides cancellation via `createCancelSource()` (same mental model
 ## Basic Usage
 
 ```uts
-import { request, createCancelSource } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, createCancelSource } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 const source = createCancelSource()
 

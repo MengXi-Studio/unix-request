@@ -13,8 +13,8 @@ Every request method resolves with the same structure `ResponseResult<T>`, mirro
 | `config` | `RequestConfig \| null` | The **final merged config** of this request (the send snapshot, see [Request Flow](./request-flow)) |
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestConfig } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestConfig } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', null).then((res) => {
 	console.log('statusCode=' + res.statusCode.toString())
@@ -48,7 +48,7 @@ get<UserInfo>('/api/user/1', null).then((res) => {
 Response types in instance methods and interceptors are `ResponseAny` (i.e. `ResponseResult<any>`); assert on the business side as needed:
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const inst = createRequest(null)
 inst.get('/api/user/1', null).then((res) => {

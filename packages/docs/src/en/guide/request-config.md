@@ -31,7 +31,7 @@ Every field except `url` is optional. This is a hard-won rule for UTS plugins: t
 All optional fields share one consistent semantic: **omitted or explicitly `null` means the instance default applies** (falling back to the built-in defaults when the instance has none). Explicit `null` is equivalent to omitting, which keeps a uniform writing style in "dynamic configuration" scenarios:
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/list',
@@ -53,7 +53,7 @@ The merge order is strictly: **built-in defaults → instance defaults (configur
 | `header` | none | **Shallow merge**: instance default keys are overridden by request-level same-name keys, other keys are kept |
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 // allow 3xx to count as success too (overrides the default 2xx validation)
 request<any>({
@@ -83,7 +83,7 @@ Likewise, `dataType` / `responseType` are also passed through as-is. `responseTy
 `onTask` is called back with the native `RequestTask` after the request is sent, for advanced scenarios this library does not wrap (chunked listening, response header listening, etc.):
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/stream',

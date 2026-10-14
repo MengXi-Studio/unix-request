@@ -29,8 +29,8 @@
 		title: '请求体与请求头',
 		name: 'body-header'
 	})
-	import { post } from '@/uni_modules/ux-request'
-	import type { RequestError } from '@/uni_modules/ux-request'
+	import { post } from '@/uni_modules/mx-request'
+	import type { RequestError } from '@/uni_modules/mx-request'
 	import { describeErr, headerVal } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

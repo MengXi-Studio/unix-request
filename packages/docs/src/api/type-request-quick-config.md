@@ -78,7 +78,7 @@ export type RequestQuickConfig = {
 ## 示例
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['Accept-Language'] = 'zh-CN'

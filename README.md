@@ -38,22 +38,22 @@
 
 ## 安装
 
-**npm**——安装后将包内容同步到工程 `uni_modules/ux-request/`（编译器不扫描 node_modules）：
+**npm**——安装后将包内容同步到工程 `uni_modules/mx-request/`（编译器不扫描 node_modules）：
 
 ```bash
 pnpm add @meng-xi/unix-request
-mkdir -p uni_modules && cp -R node_modules/@meng-xi/unix-request uni_modules/ux-request
+mkdir -p uni_modules && cp -R node_modules/@meng-xi/unix-request uni_modules/mx-request
 ```
 
-> `packages/core` 为标准 **uni_modules UTS 插件**（`utssdk/` 官方目录结构 + `interface.uts` 对外声明），业务侧从 `@/uni_modules/ux-request` 导入。
+> `packages/core` 为标准 **uni_modules UTS 插件**（`utssdk/` 官方目录结构 + `interface.uts` 对外声明），业务侧从 `@/uni_modules/mx-request` 导入。
 
 ## 快速开始
 
 ### 1. 发出第一个请求
 
 ```uts
-import { request, configureRequest } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, configureRequest } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 // 项目启动时配置一次全局默认（如 App.uvue onLaunch；null 表示沿用内置默认）
 configureRequest({
@@ -80,7 +80,7 @@ request<UTSJSONObject>({
 ### 2. 七种快捷方法
 
 ```uts
-import { get, post } from '@/uni_modules/ux-request'
+import { get, post } from '@/uni_modules/mx-request'
 
 // GET：method 由方法名固定注入，快捷配置不含 url 字段
 get<UTSJSONObject>('/api/http/method/get', {
@@ -98,8 +98,8 @@ post<UTSJSONObject>('/login', { user: 'demo' } as UTSJSONObject, null).then((res
 ### 3. 统一错误处理
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<UTSJSONObject>({ url: '/may-fail' }).catch((err) => {
 	const e = err as RequestError

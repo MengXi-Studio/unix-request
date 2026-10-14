@@ -28,8 +28,8 @@
 		title: '数据转换',
 		name: 'transform'
 	})
-	import { post } from '@/uni_modules/ux-request'
-	import type { RequestError } from '@/uni_modules/ux-request'
+	import { post } from '@/uni_modules/mx-request'
+	import type { RequestError } from '@/uni_modules/mx-request'
 	import { describeErr } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

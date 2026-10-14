@@ -5,8 +5,8 @@ unix-request exposes two layers of request entry points: the `request<T>(config)
 ## Main Entry `request<T>`
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<any>({
 	url: '/api/http/method/get', // required; relative paths are joined with baseURL
@@ -39,7 +39,7 @@ For the full signature see the API docs [request()](../api/request) and [Request
 | `options<T>` | `(url, config \| null)` | OPTIONS |
 
 ```uts
-import { get, post, del } from '@/uni_modules/ux-request'
+import { get, post, del } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', null)
 post<any>('/api/http/method/post', { name: 'mengxi' } as UTSJSONObject, null)
@@ -56,7 +56,7 @@ Two hard constraints:
 Any request-level field can override the instance defaults and only affects the current request:
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 // the global baseURL points at the business service; this one request hits another machine with a relaxed timeout
 get<any>('https://other.example.com/api/slow', {

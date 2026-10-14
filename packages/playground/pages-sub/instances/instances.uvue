@@ -29,8 +29,8 @@
 		title: '多实例与全局配置',
 		name: 'instances'
 	})
-	import { get, createRequest, useRequestInterceptor, ejectInterceptor, configureRequest } from '@/uni_modules/ux-request'
-	import type { RequestError } from '@/uni_modules/ux-request'
+	import { get, createRequest, useRequestInterceptor, ejectInterceptor, configureRequest } from '@/uni_modules/mx-request'
+	import type { RequestError } from '@/uni_modules/mx-request'
 	import { HOST, describeErr, headerVal } from '@/common/test-utils.uts'
 
 	const logs = reactive<string[]>([])

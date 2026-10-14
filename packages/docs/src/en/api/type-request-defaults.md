@@ -44,7 +44,7 @@ A `null` field means **the built-in default applies** (not "clear this configura
 ## Examples
 
 ```uts
-import { configureRequest, createRequest } from '@/uni_modules/ux-request'
+import { configureRequest, createRequest } from '@/uni_modules/mx-request'
 
 // Global defaults
 const globalHeader: UTSJSONObject = {}

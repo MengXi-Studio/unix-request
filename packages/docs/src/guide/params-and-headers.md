@@ -7,7 +7,7 @@
 `params` 是官方 `uni.request` 没有的字段。官方对「GET data → query」的隐式转换未明文编码规则（编码方式 / 嵌套对象处理 / 各端一致性均无承诺），因此本库提供 `params` 并由**库内确定性编码**，不依赖原生隐式行为：
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', {
 	params: { page: 1, keyword: 'meng xi', active: true } as UTSJSONObject
@@ -30,7 +30,7 @@ get<any>('/api/http/method/get', {
 url 中已带的 query 会与 `params` 合并，用 `&` 续接；url 尾部的孤立 `?` / `&` 做容错处理：
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 getUri({
 	url: '/api/list?size=10',
@@ -65,7 +65,7 @@ GET 携带请求体是 uni-app 的惯例行为（hello uni-app x 官方示例含
 `header` 按键浅合并：实例默认 header（`configureRequest` / 实例 defaults）先铺底，请求级同名键覆盖、其余键保留；合并写入全新对象，不会改动业务传入的对象：
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', {
 	header: { 'x-trace': 'on', 'content-type': 'text/plain' } as UTSJSONObject
@@ -84,7 +84,7 @@ get<any>('/api/http/method/get', {
 `getUri(config)` 按与真实请求**完全相同**的归一化规则构建完整 URL（baseURL 拼接 + params 编码），不发网络、不跑拦截器，适合日志、埋点、预检场景：
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 // 斜杠容错：baseURL 尾部与 url 头部的 / 任意组合都能正确拼接
 getUri({ url: '/x', baseURL: 'https://api.test/v1/', params: { a: 'a b', n: 1, ok: true } as UTSJSONObject })

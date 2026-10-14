@@ -7,7 +7,7 @@ unix-request provides two kinds of instances: the **default instance** (a module
 `request` / `get` / `post` etc. imported directly from the package entry are all bound to the default instance. Global defaults can be set in one go with `configureRequest`:
 
 ```uts
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['x-global'] = 'global-default'
@@ -29,7 +29,7 @@ For the full signature see the API doc [configureRequest()](../api/configure-req
 ## createRequest: Multiple Instances
 
 ```uts
-import { createRequest } from '@/uni_modules/ux-request'
+import { createRequest } from '@/uni_modules/mx-request'
 
 const instA = createRequest({ baseURL: 'https://a.example.com', timeout: 10000, header: null, validateStatus: null })
 const instB = createRequest({ baseURL: 'https://b.example.com', timeout: 20000, header: null, validateStatus: null })

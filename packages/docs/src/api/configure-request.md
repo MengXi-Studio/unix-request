@@ -3,7 +3,7 @@
 `configureRequest(defaults: RequestDefaults): void` 配置**默认实例**的全局默认配置（baseURL / timeout / header / validateStatus），App 内通常只在启动时调用一次。
 
 ```uts
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['x-app'] = 'demo'
@@ -51,7 +51,7 @@ App.uvue `onLaunch` 配置全局 baseURL 与默认 header：
 
 ```uts
 // App.uvue
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 export class App implements IApp {
 	onLaunch(): void {
@@ -70,7 +70,7 @@ export class App implements IApp {
 此后默认实例上的相对路径请求都会走该 baseURL，并自动携带默认 header（请求级同名键可覆盖）：
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<UTSJSONObject>('/api/health', null).then((res) => {
 	// res.config.header 同时含 x-client 与请求级 header

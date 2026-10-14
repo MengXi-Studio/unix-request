@@ -3,8 +3,8 @@
 `request<T>(config: RequestConfig): Promise<ResponseResult<T>>` fires a single HTTP request and is the main entry point of the library (mounted on the default instance). Success resolves with the unified response structure [ResponseResult](./type-response), failure rejects with the unified error structure [RequestError](./type-request-error) — the caller only has to deal with a single Promise.
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<{ id: number, name: string }>({
 	url: '/api/users/1',
@@ -63,7 +63,7 @@ Before sending, the config passes through the request interceptor chain, and the
 ### Success (POST + params + header)
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['Authorization'] = 'Bearer <token>'
@@ -83,8 +83,8 @@ request<UTSJSONObject>({
 ### Failure (HTTP 4xx with the raw response)
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<UTSJSONObject>({ url: '/api/missing' }).then((res) => {
 	// 4xx does not reach here by default (validateStatus failed)

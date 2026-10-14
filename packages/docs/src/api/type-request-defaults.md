@@ -44,7 +44,7 @@ export type RequestDefaults = {
 ## 示例
 
 ```uts
-import { configureRequest, createRequest } from '@/uni_modules/ux-request'
+import { configureRequest, createRequest } from '@/uni_modules/mx-request'
 
 // 全局默认
 const globalHeader: UTSJSONObject = {}

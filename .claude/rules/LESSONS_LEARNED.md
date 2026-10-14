@@ -63,7 +63,7 @@
     6 同型），不代表库缺 API；库完整性以源码与按需产物引用图为准。
 21. **GET/HEAD 的 transformRequest 收到 null**：normalize 先把 data 并入 query 并置 null，transform 在 normalize 之后执行——自定义 transformRequest 内对 data 取属性会 TypeError（本轮由 method
     bug 下游暴露：post 被降级为 GET 后 data 进 query → transform 收 null → ERR_NATIVE「transformRequest 执行异常」）。设计语义：transform 作用于发送快照，GET/HEAD 场景 data 恒为 null，transform 内需判空。
-22. **入口 export type 同目录转发可行**：`export type { ... } from './interface.uts'`（与入口同目录，非跨级）编译通过，消费方 `import type { RequestConfig } from '@/uni_modules/ux-request'`
+22. **入口 export type 同目录转发可行**：`export type { ... } from './interface.uts'`（与入口同目录，非跨级）编译通过，消费方 `import type { RequestConfig } from '@/uni_modules/mx-request'`
     正常解析——对外类型须经入口转发，仅 import 不导出会让消费方 TS 检查报「not exported」。
 23. **RequestQuickConfig 与 RequestConfig 拆分**：快捷方法 config 不含 url（url 由方法参数提供），避免调用方为满足 RequestConfig.url 必填传占位值——uts-proxy 对必填字段生成非空强转（NPE 红线），不能用「url 改可选」解决，只能拆类型。
 

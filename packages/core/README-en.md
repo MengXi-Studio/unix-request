@@ -43,22 +43,22 @@ The only underlying dependency is `uni.request` — no reinvented network stack;
 
 ## Installation
 
-**npm** — install, then copy the package into your project's `uni_modules/ux-request/` (the compiler does not scan node_modules):
+**npm** — install, then copy the package into your project's `uni_modules/mx-request/` (the compiler does not scan node_modules):
 
 ```bash
 pnpm add @meng-xi/unix-request
-mkdir -p uni_modules && cp -R node_modules/@meng-xi/unix-request uni_modules/ux-request
+mkdir -p uni_modules && cp -R node_modules/@meng-xi/unix-request uni_modules/mx-request
 ```
 
-> `packages/core` is a standard **uni_modules UTS plugin** (`utssdk/` official directory layout + `interface.uts` API declarations); import from `@/uni_modules/ux-request` in your code.
+> `packages/core` is a standard **uni_modules UTS plugin** (`utssdk/` official directory layout + `interface.uts` API declarations); import from `@/uni_modules/mx-request` in your code.
 
 ## Quick Start
 
 ### 1. Send your first request
 
 ```uts
-import { request, configureRequest } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request, configureRequest } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 // Configure global defaults once at startup (e.g. App.uvue onLaunch; null keeps built-in defaults)
 configureRequest({
@@ -85,7 +85,7 @@ request<UTSJSONObject>({
 ### 2. Seven shortcut methods
 
 ```uts
-import { get, post } from '@/uni_modules/ux-request'
+import { get, post } from '@/uni_modules/mx-request'
 
 // GET: the method is injected by the function name; the shortcut config has no url field
 get<UTSJSONObject>('/api/http/method/get', {
@@ -103,8 +103,8 @@ post<UTSJSONObject>('/login', { user: 'demo' } as UTSJSONObject, null).then((res
 ### 3. Unified error handling
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 request<UTSJSONObject>({ url: '/may-fail' }).catch((err) => {
 	const e = err as RequestError

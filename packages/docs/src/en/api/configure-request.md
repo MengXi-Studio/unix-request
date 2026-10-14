@@ -3,7 +3,7 @@
 `configureRequest(defaults: RequestDefaults): void` configures the global defaults of the **default instance** (baseURL / timeout / header / validateStatus). In an App it is usually called once at startup.
 
 ```uts
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 const header: UTSJSONObject = {}
 header['x-app'] = 'demo'
@@ -51,7 +51,7 @@ Configuring the global baseURL and default header in `onLaunch` of App.uvue:
 
 ```uts
 // App.uvue
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 export class App implements IApp {
 	onLaunch(): void {
@@ -70,7 +70,7 @@ export class App implements IApp {
 From then on, relative-path requests on the default instance go through that baseURL and automatically carry the default header (request-level same-name keys can override it):
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<UTSJSONObject>('/api/health', null).then((res) => {
 	// res.config.header contains both x-client and the request-level header

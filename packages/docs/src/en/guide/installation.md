@@ -9,7 +9,7 @@
 
 ## How to Get It
 
-unix-request is a standard **uni_modules UTS plugin** (plugin ID: `ux-request`). It supports two ways to obtain it — npm and uni_modules; pick either one.
+unix-request is a standard **uni_modules UTS plugin** (plugin ID: `mx-request`). It supports two ways to obtain it — npm and uni_modules; pick either one.
 
 ### Option 1: npm
 
@@ -27,10 +27,10 @@ import { request } from '@meng-xi/unix-request'
 
 ### Option 2: uni_modules
 
-Copy the contents of the repository's `packages/core` directory (`utssdk/`, `package.json`, etc.) into your project's **`uni_modules/ux-request`** directory and installation is complete. Import via the uni_modules path (**all examples in this guide and the playground use this form**):
+Copy the contents of the repository's `packages/core` directory (`utssdk/`, `package.json`, etc.) into your project's **`uni_modules/mx-request`** directory and installation is complete. Import via the uni_modules path (**all examples in this guide and the playground use this form**):
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 ```
 
 ::: warning Do not mix the two options
@@ -52,7 +52,7 @@ Request orchestration logic compiles directly to Kotlin / Swift code on native p
 The following code makes no real network request; it only verifies that the plugin imports correctly and builds URLs:
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 console.log(getUri({
 	url: '/api/user/1',
@@ -65,8 +65,8 @@ console.log(getUri({
 Then make a real request (official test server, runs as-is):
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 get<any>('https://request.dcloud.net.cn/api/http/method/get', null)
 	.then((res) => {

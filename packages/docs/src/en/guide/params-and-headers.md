@@ -7,7 +7,7 @@ This page covers the deterministic encoding rules for `params`, the contract of 
 `params` is a field the official `uni.request` does not have. The official implicit "GET data → query" conversion has no documented encoding rule (no guarantee on the encoding method / nested object handling / cross-platform consistency), so this library provides `params` with **deterministic in-library encoding** instead of relying on the native implicit behavior:
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', {
 	params: { page: 1, keyword: 'meng xi', active: true } as UTSJSONObject
@@ -30,7 +30,7 @@ Encoding rules (both keys and values go through `encodeURIComponent`):
 A query already present in the url is merged with `params`, joined with `&`; a trailing orphan `?` / `&` in the url is tolerated:
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 getUri({
 	url: '/api/list?size=10',
@@ -65,7 +65,7 @@ GET with a request body is a common uni-app practice (the official hello uni-app
 `header` is shallow-merged by key: the instance default header (`configureRequest` / instance defaults) lays the base, request-level same-name keys override, other keys are kept; the merge is written into a brand-new object and never mutates the object you passed in:
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', {
 	header: { 'x-trace': 'on', 'content-type': 'text/plain' } as UTSJSONObject
@@ -84,7 +84,7 @@ When the request body is a `UTSJSONObject` and `content-type` is not explicitly 
 `getUri(config)` builds the full URL using **exactly the same** normalization rules as a real request (baseURL joining + params encoding). It sends nothing and runs no interceptors — suitable for logging, analytics, and pre-check scenarios:
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 // slash tolerance: any combination of a trailing / in baseURL and a leading / in url joins correctly
 getUri({ url: '/x', baseURL: 'https://api.test/v1/', params: { a: 'a b', n: 1, ok: true } as UTSJSONObject })

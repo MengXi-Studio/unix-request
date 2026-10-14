@@ -32,8 +32,8 @@ Classification is a **deterministic mapping** with no ambiguous branches; `nativ
 ## Basic Handling Pattern
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 get<any>('/api/user/1', null).catch((err) => {
 	const e = err as RequestError
@@ -74,7 +74,7 @@ request<any>({ url: '/api/http/statusCode/404' }).catch((err) => {
 `errSubject` is always `'unix-request'`. When errors may come from multiple layers (a response interceptor replacing errors, multiple libraries mixed together, native callback pass-through), use it to filter by source:
 
 ```uts
-import { REQUEST_ERR_SUBJECT } from '@/uni_modules/ux-request'
+import { REQUEST_ERR_SUBJECT } from '@/uni_modules/mx-request'
 
 if (e.errSubject === REQUEST_ERR_SUBJECT) {
 	// definitely an error thrown by this library
@@ -86,8 +86,8 @@ if (e.errSubject === REQUEST_ERR_SUBJECT) {
 A two-stage division of labor is the clearest: interceptors do **reporting and fallback for recoverable errors**, while the call site only handles business failures:
 
 ```uts
-import { useResponseInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { useResponseInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 useResponseInterceptor(null, (err: RequestError): any | null => {
 	report(err) // global reporting

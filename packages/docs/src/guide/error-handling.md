@@ -32,8 +32,8 @@ unix-request 把 `uni.request` 分散的错误语义（回调 fail 的原生 err
 ## 基础处理模式
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestError, ResponseAny } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestError, ResponseAny } from '@/uni_modules/mx-request'
 
 get<any>('/api/user/1', null).catch((err) => {
 	const e = err as RequestError
@@ -74,7 +74,7 @@ request<any>({ url: '/api/http/statusCode/404' }).catch((err) => {
 `errSubject` 固定为 `'unix-request'`。当错误可能来自多层（如响应拦截器换错、多个库混合、原生回调透传）时，用它做来源过滤：
 
 ```uts
-import { REQUEST_ERR_SUBJECT } from '@/uni_modules/ux-request'
+import { REQUEST_ERR_SUBJECT } from '@/uni_modules/mx-request'
 
 if (e.errSubject === REQUEST_ERR_SUBJECT) {
 	// 确定是本库抛出的错误
@@ -86,8 +86,8 @@ if (e.errSubject === REQUEST_ERR_SUBJECT) {
 两段式分工最清晰：拦截器里做**上报与可恢复错误的兜底**，调用侧只处理业务性失败：
 
 ```uts
-import { useResponseInterceptor } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { useResponseInterceptor } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 useResponseInterceptor(null, (err: RequestError): any | null => {
 	report(err) // 全局上报

@@ -9,7 +9,7 @@
 
 ## 获取方式
 
-unix-request 为标准 **uni_modules UTS 插件**（插件 ID：`ux-request`），支持 npm 与 uni_modules 两种获取方式，二选一即可。
+unix-request 为标准 **uni_modules UTS 插件**（插件 ID：`mx-request`），支持 npm 与 uni_modules 两种获取方式，二选一即可。
 
 ### 方式一：npm 安装
 
@@ -27,10 +27,10 @@ import { request } from '@meng-xi/unix-request'
 
 ### 方式二：uni_modules 方式
 
-将仓库 `packages/core` 目录下的内容（`utssdk/`、`package.json` 等）拷贝到工程的 **`uni_modules/ux-request`** 目录，即完成安装。引入时使用 uni_modules 路径（**本指南与 playground 全部示例均采用此形态**）：
+将仓库 `packages/core` 目录下的内容（`utssdk/`、`package.json` 等）拷贝到工程的 **`uni_modules/mx-request`** 目录，即完成安装。引入时使用 uni_modules 路径（**本指南与 playground 全部示例均采用此形态**）：
 
 ```uts
-import { request } from '@/uni_modules/ux-request'
+import { request } from '@/uni_modules/mx-request'
 ```
 
 ::: warning 两种方式不要混用
@@ -52,7 +52,7 @@ import { request } from '@/uni_modules/ux-request'
 以下代码不做真实网络请求，仅验证插件可正常导入与 URL 构建：
 
 ```uts
-import { getUri } from '@/uni_modules/ux-request'
+import { getUri } from '@/uni_modules/mx-request'
 
 console.log(getUri({
 	url: '/api/user/1',
@@ -65,8 +65,8 @@ console.log(getUri({
 再发起一个真实请求（官方测试服务器，可直接运行）：
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 get<any>('https://request.dcloud.net.cn/api/http/method/get', null)
 	.then((res) => {

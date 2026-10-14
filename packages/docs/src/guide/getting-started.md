@@ -8,7 +8,7 @@
 
 ```uts
 // App.uvue <script setup lang="uts"> 内
-import { configureRequest } from '@/uni_modules/ux-request'
+import { configureRequest } from '@/uni_modules/mx-request'
 
 onLaunch(() => {
 	const header: UTSJSONObject = {}
@@ -27,8 +27,8 @@ onLaunch(() => {
 ## 第二步：发起请求
 
 ```uts
-import { get } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 get<any>('/api/http/method/get', null)
 	.then((res) => {
@@ -70,7 +70,7 @@ get<UserInfo>('/api/user/1', {
 ## POST 请求
 
 ```uts
-import { post } from '@/uni_modules/ux-request'
+import { post } from '@/uni_modules/mx-request'
 
 post<any>('/api/user/create', { name: 'mengxi', role: 'admin' } as UTSJSONObject, null)
 	.then((res) => {
@@ -86,8 +86,8 @@ post<any>('/api/user/create', { name: 'mengxi', role: 'admin' } as UTSJSONObject
 把三步合在一个页面里（与 playground 同款结构，可直接运行）：
 
 ```uts
-import { get, configureRequest } from '@/uni_modules/ux-request'
-import type { RequestError } from '@/uni_modules/ux-request'
+import { get, configureRequest } from '@/uni_modules/mx-request'
+import type { RequestError } from '@/uni_modules/mx-request'
 
 configureRequest({
 	baseURL: 'https://request.dcloud.net.cn',
