@@ -51,7 +51,3 @@ features:
     title: UTS / TypeScript 优先
     details: 泛型响应 `ResponseResult<T>` 静态标注，UTSJSONObject 参数 / 严格类型，一套 API 覆盖 Web / 微信小程序 / Android
 ---
-
-## 快速上手路径
-
-[介绍](/guide/introduction) → [快速开始](/guide/getting-started) → [发起请求](/guide/requests) → [请求配置](/guide/request-config) → [拦截器](/guide/interceptors) → [错误处理](/guide/error-handling)
